@@ -83,6 +83,9 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
 	add(ucfmsg("2ND_ADDRESS"));
 	add(ucfmsg("2ND_PHONE"));
 	
+	# groups
+	add(ucfmsg("ALL_GROUPS"));
+	
   if($use_utf_16LE)
   	print mb_convert_encoding( "\n", 'UTF-16LE', 'UTF-8');
   else
@@ -141,6 +144,19 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
 		# 2nd contact
 		add($myrow["address2"]);
 		add($myrow["phone2"]);
+		
+		# groups
+		$sql = "SELECT DISTINCT $table_groups.group_name FROM $table_groups ";
+		$sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
+		$sql .= $myrow["id"];
+		
+		$result = mysql_query($sql);
+		$groups = array();
+		$i = 0;
+		while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
+		  $groups[] = $row["group_name"];
+		}
+		add(implode(", ", $groups));
 
     if($use_utf_16LE)
     	print mb_convert_encoding( "\n", 'UTF-16LE', 'UTF-8');

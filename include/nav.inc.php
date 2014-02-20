@@ -25,12 +25,12 @@ if(!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
 	<li class="all">
 		<a href="birthdays<?php echo $page_ext; ?>"><?php echo msg('NEXT_BIRTHDAYS'); ?></a>
 	</li>
-	<li class="export">
-    	<a href="view<?php echo $page_ext_qry; ?>all&amp;print"><?php echo msg('PRINT_ALL'); ?></a>
+<!--	<li class="export">
+    	<a href="view<?php //echo $page_ext_qry; ?>all&amp;print"><?php //echo msg('PRINT_ALL'); ?></a>
   </li>
 	<li class="export">
-      <a href="view<?php echo $page_ext_qry; ?>all&amp;print&amp;phones"><?php echo msg('PRINT_PHONES'); ?></a>
-  </li>
+      <a href="view<?php //echo $page_ext_qry; ?>all&amp;print&amp;phones"><?php //echo msg('PRINT_PHONES'); ?></a>
+  </li>-->
 <?php
 if(isset($google_maps_keys) || isset($google_maps_key)) { 
 ?>

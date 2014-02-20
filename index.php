@@ -275,21 +275,19 @@ function addRow($row) {
   }
   echo "<div class='left'><input type='button' value=\"".ucfmsg("SEND_EMAIL")."\" onclick=\"MailSelection()\" /></div>";
   if(! $read_only) {
-    echo "<div class='left'><input type='button' value=\"".ucfmsg("DELETE")."\"     onclick=\"DeleteSel()\" /></div>";
-    
 	  if(isset($table_groups) and $table_groups != "" and !$is_fix_group)
 	  {
-    
+		
 	  	// -- Remove from group --
 	  	if($group_name != "" and $group_name != "[none]") 
 	  	{
-	          	echo "<div class='left'><input type='submit' name='remove' value='".ucfmsg("REMOVE_FROM")." \"$group_name\"'/></div>";
-	  	} else
-	          	echo "<div></div>";
+	          	echo "<br/><div class='left'><input type='submit' name='remove' value='".ucfmsg("REMOVE_FROM")." \"$group_name\"'/></div>";
+	  	} //else
+	          //	echo "<div></div>";
     
 	  	// -- Add to a group --
-      echo "<div class='right'><input type='submit' name='add' value='".ucfmsg("ADD_TO")."'/>-";
-      echo "<select name='to_group'>";
+		echo "<br/><div class='left'><input type='submit' name='add' value='".ucfmsg("ADD_TO")."'/>-";
+		echo "<select name='to_group'>";
     
 	  	$sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
 	  	$result = mysql_query($sql);
@@ -301,8 +299,9 @@ function addRow($row) {
 	  	}
           	echo "</select>";
     
-	    echo "</div>";
+		echo "</div>";
 	  }
+	  echo "<br/><div class='left'><input type='button' value=\"".ucfmsg("DELETE")."\"     onclick=\"DeleteSel()\" /></div>";
   }
 	echo "<br/></form>";
 
@@ -314,6 +313,14 @@ function addRow($row) {
             echo "<hr />";
         }
 ?>
+<div class="right" style="clear:right">
+  <form>
+    <input type="button" value="<?php echo msg('PRINT_ALL'); ?>" 
+	onclick="window.location.href='view<?php echo $page_ext_qry; ?>all&amp;print'"> 
+    <br/><input type="button" value="<?php echo msg('PRINT_PHONES'); ?>" 
+	onclick="window.location.href='view<?php echo $page_ext_qry; ?>all&amp;print&amp;phones'"> 
+  </form>
+</div>
 <script type="text/javascript">
 <!--
 
