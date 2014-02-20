@@ -181,6 +181,14 @@ function addRow($row) {
         }
         echo "<td>".implode("<br>", $amails)."</td>";
         break;
+      case "all_groups":
+	$groups = $addr->getGroups();
+	$groupLinks = array();
+	foreach($groups as $group) {
+	  $groupLinks[] = "<a href='index.php?group=$group'>$group</a>";
+	}
+	echo "<td>".implode("<br>", $groupLinks)."</td>";
+	break;
       case "address":
   		  echo "<td>".str_replace("\n", "<br>", $address)."</td>";
   		  break;

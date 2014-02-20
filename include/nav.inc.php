@@ -18,6 +18,9 @@ if(!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
 	<li class="admin">
 		<a href="group<?php echo $page_ext; ?>"><?php echo msg('GROUPS'); ?></a>
 	</li>
+	<li class="all">
+		<a href="membership<?php echo $page_ext; ?>"><?php echo msg('MEMBERSHIP'); ?></a>
+	</li>
 <?php } ?>
 	<li class="all">
 		<a href="birthdays<?php echo $page_ext; ?>"><?php echo msg('NEXT_BIRTHDAYS'); ?></a>

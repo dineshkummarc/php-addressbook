@@ -194,11 +194,13 @@ class Address {
     
     private $phones;
     private $emails;
+    private $groups;
 
     function __construct($data) {
     	$this->address = $data;
     	$this->phones = $this->getPhones();
     	$this->emails = $this->getEMails();
+    	$this->groups = $this->getGroups();
     }
 
     public function getData() {
@@ -220,6 +222,24 @@ class Address {
 
     public function getBirthday() {
     	return new Birthday($this->address, "b");
+    }
+    
+    public function getGroups() {
+    
+      global $table_groups, $table_grp_adr;
+      
+      $sql = "SELECT DISTINCT $table_groups.group_name FROM $table_groups ";
+      $sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
+      $sql .= $this->address["id"];
+      
+      $result = mysql_query($sql);
+      $groups = array();
+      $i = 0;
+      while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
+	$groups[$i++] = $row["group_name"];
+      }
+      
+      return $groups;
     }
 
     //

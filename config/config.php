@@ -22,6 +22,7 @@
            , "all_emails"
            // , "email"
            , "all_phones"
+           , "all_groups"
            // , "telephone"
            // , "home"
            // , "mobile"
@@ -47,7 +48,7 @@
   $use_ajax = true;
 
   // Enable beta fetures, not recommended for production.
-  $beta_features = false;
+  $beta_features = true;
 
   // View e-mail addresses as images
   $mail_as_image = false;
