@@ -36,6 +36,7 @@
   }
 	
 	$sql = "SELECT $table.*, b_month_lookup.bmonth_num FROM $month_from_where ORDER BY lastname, firstname ASC";
+	//$sql = "SELECT $table.* FROM $table ORDER BY lastname, firstname ASC";
 /*
 	echo $sql;
 SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FROM addr_addressbook LEFT OUTER JOIN addr_month_lookup
@@ -48,7 +49,7 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
 	$result = mysql_query($sql);
 	$resultsnumber = mysql_numrows($result);	
 
-  // Header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+  //Header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
   Header("Content-Type: application/vnd.ms-excel");
   Header("Content-disposition: attachement; filename=export-".date("Ymd").($group_name != "" ? "-".$group_name : "").".csv");
   Header("Content-Transfer-Encoding: 8bit");  
@@ -84,13 +85,25 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
 	add(ucfmsg("2ND_PHONE"));
 	
 	# groups
-	add(ucfmsg("ALL_GROUPS"));
+	if($_GET["one_column"] === "yes") {
+	  add(ucfmsg("ALL_GROUPS"));
+	}
+	else {
+	  $sql = "SELECT DISTINCT $table_groups.group_name FROM $table_groups ";
+	  $group_result = mysql_query($sql);
+	  $group_names = array();
+	  $i = 0;
+	  while($row = mysql_fetch_array($group_result, MYSQL_BOTH)) {
+	    $group_names[] = $row["group_name"];
+	    add($row["group_name"]);
+	  }
+	}
 	
   if($use_utf_16LE)
   	print mb_convert_encoding( "\n", 'UTF-16LE', 'UTF-8');
   else
 	  echo "\r\n";
-
+	  
 	while ($myrow = mysql_fetch_array($result))
 	{
 
@@ -150,13 +163,25 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
 		$sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
 		$sql .= $myrow["id"];
 		
-		$result = mysql_query($sql);
+		$group_result = mysql_query($sql);
 		$groups = array();
 		$i = 0;
-		while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
+		while($row = mysql_fetch_array($group_result, MYSQL_BOTH)) {
 		  $groups[] = $row["group_name"];
 		}
-		add(implode(", ", $groups));
+		if($_GET["one_column"] === "yes") {
+		  add(implode(", ", $groups));
+		}
+		else {
+		  foreach($group_names as $group) {
+		    if(in_array($group, $groups)) {
+		      add("X");
+		    }
+		    else {
+		      add("");
+		    }
+		  }
+		}
 
     if($use_utf_16LE)
     	print mb_convert_encoding( "\n", 'UTF-16LE', 'UTF-8');

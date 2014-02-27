@@ -68,9 +68,15 @@
 </form>
 <br>
 <form method="get" action="csv<?php echo $page_ext; ?>">
+  <div style="float: left; margin-right: 10px">
   <label>CSV for Excel: </label>
   <input type="hidden" name="group"  value="<?php echo $group; ?>">
   <input type="submit" name="submit" value="Download">
+  </div>
+  <div>
+  <label for="one_column">use one column for group export:</label>
+  <input type="checkbox" name="one_column" value="yes">
+  </div>
 </form>
 <br>
 <form>

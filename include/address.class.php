@@ -350,7 +350,7 @@ class Addresses {
 
     protected function loadBy($load_type, $searchstring, $alphabet = "") {
 
-	    global $base_from_where, $table;
+	    global $base_from_where, $table, $page;
 
      	$sql = "SELECT DISTINCT $table.* FROM $base_from_where";
 
@@ -396,8 +396,8 @@ class Addresses {
       }
 
       //* Paging
-      $page = 1;
-      $pagesize = 2200;
+      if(!isset($page)) $page = 1;
+      $pagesize = 10;
       if($pagesize > 0) {
           $sql .= " LIMIT ".($page-1)*$pagesize.",".$pagesize;
       }
@@ -433,6 +433,11 @@ class Addresses {
     
     public function count() {
     	return mysql_numrows($this->getResults());
+    }
+    
+    public function countAll() {
+      global $table;
+      return mysql_numrows(mysql_query("SELECT DISTINCT id FROM ".$table));
     }
 }
 ?>

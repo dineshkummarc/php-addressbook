@@ -32,7 +32,8 @@
   
   }
 	
-	$sql = "SELECT $table.*, $month_lookup.bmonth_num FROM $month_from_where ORDER BY lastname, firstname ASC";
+	//$sql = "SELECT $table.*, $month_lookup.bmonth_num FROM $month_from_where ORDER BY lastname, firstname ASC";
+	$sql = "SELECT $table.* FROM $table ORDER BY lastname, firstname ASC";
 
 	$result = mysql_query($sql);
 	$resultsnumber = mysql_numrows($result);	
