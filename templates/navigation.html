@@ -1,0 +1,34 @@
+<ul>
+  <li>
+    <a href="./{% if group and not is_fix_group %}?group={{group}}{% endif %}">{% trans 'HOME' %}</a>
+  </li>
+  {% if not read_only %}
+    <li class="all">
+      <a href="edit.php">{% trans 'ADD_NEW' %}</a>
+    </li>
+  {% endif %} 
+  {% if not read_only and public_group_edit and table_groups and not is_fix_group %}
+    <li class="admin">
+      <a href="group.php">{% trans 'GROUPS' %}</a>
+    </li>
+    <li class="all">
+      <a href="membership.php">{% trans 'MEMBERSHIP' %}</a>
+    </li>
+  {% endif %}
+  <li class="all">
+    <a href="birthdays.php">{% trans 'NEXT_BIRTHDAYS' %}</a>
+  </li>
+  {% if google_maps_keys | google_maps_key %}
+    <li class="export">
+      <a href="map.php">{% trans 'MAP' %}</a>
+    </li>
+  {% endif %}
+  <li class="export">
+    <a href="export.php">{% trans 'EXPORT' %}</a>
+  </li> 
+  {% if not read_only %}
+    <li class="export">
+      <a href="import.php">{% trans 'IMPORT' %}</a>
+    </li> 
+  {% endif %}
+</ul>

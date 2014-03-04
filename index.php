@@ -1,7 +1,14 @@
 <?php
+
+  error_reporting(E_ALL);
+  ini_set("display_errors", "On");
+  ini_set("display_startup_errors", "On");
+  
   // some includes
+  require_once 'vendor/autoload.php';
+  
   include ("include/dbconnect.php");
-  include ("include/format.inc.php");
+  //include ("include/format.inc.php");
   include ("include/photo.class.php");
   
   // main output function
@@ -147,14 +154,68 @@
         echo "<td>${$row}</td>";
     }
   }
-?>
+  
+  // load template engine (Twig)  
+  $loader = new Twig_Loader_Filesystem('templates');
+  $twig = new Twig_Environment($loader, array(
+      //'cache' => 'cache',
+      'cache' => false,
+      'debug' => true
+  ));
+  
+  /*// set i18n
+  $twig->addExtension(new Twig_Extensions_Extension_I18n());
+  // Set language to German
+  putenv('LC_ALL=de_DE'); 
+  setlocale(LC_ALL, 'de_DE'); 
+  // Specify location of translation tables
+  bindtextdomain("php-addressbook-de", "translations"); 
+  // Choose domain 
+  textdomain("php-addressbook-de");*/
+    
+  $data["skin_color"] = $skin_color;
+  // Define default map guessing
+  switch($skin_color) {
+    case "blue":
+      $skin_mt_color = '#739fce';
+      break;
+    case "brown":
+      $skin_mt_color = '#c59469';
+      break;
+    case "green":
+      $skin_mt_color = '#66a749';
+      break;
+    case "grey":
+      $skin_mt_color = '#777777';
+      break;
+    case "pink":
+      $skin_mt_color = '#a84989';
+      break;
+    case "purple":
+      $skin_mt_color = '#5349a9';
+      break;
+    case "red":
+      $skin_mt_color = '#b63a3a';
+      break;
+    case "turquoise":
+      $skin_mt_color = '#48a89d';
+      break;
+    case "yellow":
+      $skin_mt_color = '#b4b43a';
+      break;
+  }
+  $data["skin_mt_color"] = $skin_mt_color;
+  
+  //if(is_right_to_left($lang)) $data["rtl"] = true;
+  //else $data["rtl"] = false;
+  
+  $data["url_images"] = $url_images;
+  $data["remote_addr"] = $_SERVER['REMOTE_ADDR'];
 
-<!-- starting html (page title and header) -->
-<title>
-  <?php echo ucfmsg("ADDRESS_BOOK").($group_name != "" ? " ($group_name)":""); ?>
-</title>
-<?php include ("include/header.inc.php"); ?>
-<br /><br />
+  header('Content-Type:text/html; charset=UTF-8');
+  echo "Test";
+  echo $twig->render('index.html', $data);
+?>
 
 <!-- searchform with or without ajax -->
 <div id="search-az">
