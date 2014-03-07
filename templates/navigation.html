@@ -18,7 +18,7 @@
   <li class="all">
     <a href="birthdays.php">{% trans 'NEXT_BIRTHDAYS' %}</a>
   </li>
-  {% if google_maps_keys | google_maps_key %}
+  {% if google_maps_keys or google_maps_key %}
     <li class="export">
       <a href="map.php">{% trans 'MAP' %}</a>
     </li>

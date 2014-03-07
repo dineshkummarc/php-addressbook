@@ -9,7 +9,7 @@
 include("config/config.php");
 
 // Check for any mistakes (Debugging)
-error_reporting(E_NOTICE);
+error_reporting(E_ALL);
 // http://www.php.net/ini.core
 // * short_open_tag  	"0"
 // * register_globals  	"0"
@@ -91,7 +91,7 @@ if(!isset($disp_cols)) {
            , "email"
            , "telephone"
            , "edit"
-           , "details" );
+           , "details");
 }
 
 //

@@ -1,62 +1,155 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> {# {% if rtl %}dir="rtl"{% endif %} > #}
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="Description" content="PHP-Addressbook" />
-  <meta name="Keywords" content="" />
+{% extends "base.html" %} 
 
-  <link rel="stylesheet" type="text/css" href="style.css"/>
-  <style type="text/css">
-    body { background-image:url('./skins/header-{{skin_color}}.jpg'); }
-    table#maintable th { background:{{skin_mt_color}}; }
-    table#birthdays th { background:{{skin_mt_color}}; }
-  </style>
-  <!--[if !IE]>-->
-  <link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
-  <!--<![endif]-->
-  <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+{% block content %}
 
-  <link rel="icon" type="image/png" href="{{url_images}}icons/font.png" />
-  {% if rtl %}
-    <style type="text/css">
-      <!--
-      /* CSS for right to left */
-      label {margin-left:0.5em;float:right;text-align:right;}
-      #content,#right,.right {float:left;}
-      #nav,#left,.left {float:right;}
-      -->
-    </style>
+{% if group_header %}{{group_header}}{% endif %}
+
+<!-- searchform with or without ajax -->
+<div id="search-az">
+  {% if not use_ajax %}
+    <form accept-charset="utf-8" method="get" name="searchform">
+      <input type="text" value="{{searchstring}}" name="searchstring" title="{% trans "SEARCH_FOR_ANY_TEXT" %}" size="45" tabindex="0"/>
+      <input name="submitsearch" type="submit" value="{% trans "SEARCH" %}" />    
+    </form>
+    <div id='a-z'>
+      {% for letter in 'a'..'z' %}
+        <a href='index.php?alphabet={{ letter }}'>{{ letter|upper }}</a> | 
+      {% endfor %}
+      <a href='index.php'>{% trans "ALL" %}</a>
+    </div>
+  {% else %}
+    <form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false">
+      <input type="text" value="{{searchstring}}" name="searchstring" title="{% trans "SEARCH_FOR_ANY_TEXT" %}" size="45" tabindex="0" 
+      {% if use_ajax %}onkeyup="filterResults(this)"{% endif %}/>
+    </form>
   {% endif %}
-  
-  {#<title>{% trans "ADDRESS_BOOK" %}{% if group_name % } {{group_name}}{% endif %}:</title>#}
-</head>
-  
-<body>
-  <div id="container">
-    <div id="top">
-      {% if userlist %}
-        <form name="logout" method="post" class="header">
-          <input type="hidden" name="logout" value="yes" />
-          {% if username %}<b>({{username}}</b> {% endif %}
-          <a href="#" onClick="document.logout.submit();">{% trans "LOGOUT" %}</a>
-        </form>
-      {% else %}
-        <b>({{remote_addr}})</b>
+  <script type="text/javascript">document.searchform.searchstring.focus();</script>
+</div>
+<br />
+
+<hr />
+
+<!-- group selector -->
+<label style='width:24em;'><strong>{% trans "NUMBER_OF_RESULTS" %}: <span id='search_count'>{{resultsnumber}}</span></strong></label>
+
+{% if table_groups and not is_fix_group %}
+  <form id="right" method="get">
+    <select name="group" onchange="this.parentNode.submit()">
+      <option value="">[{% trans "ALL" %}]</option>
+      <option value="[none]">[{% trans "NONE" %}]</option>
+      {% if group_names %}
+        {% for group in group_names %}
+            <option 
+              {% if group_name %}{% if group == group_name %}selected{% endif %}{% endif %}>
+              [{{group}}]
+            </option>
+        {% endfor %}
       {% endif %}
-    </div>
+    </select>
+  </form>
+{% endif %}
+<br />
+<br class="clear" />
+
+<!-- output of table -->
+<form accept-charset="utf-8" name="MainForm" method="post" action="group.php">
+  <input type="hidden" name="group" value="{{group}}" />
+  &nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em><br><br>
+  <table id="maintable" class="sortcompletecallback-applyZebra">
+    <!-- table header -->
+    <tr>
+      {% if not is_mobile %}
+        {% set disp_cols_filter1 = ["home", "work", "mobile", "select", "edit", "vcard", "map", "homepage", "details"] %}
+        {% set disp_cols_filter2 = ["home", "work", "mobile"] %}
+        {% for col in disp_cols %}
+          {% if col not in disp_cols_filter1 %}
+            {% set col = col|upper %}
+            <th class='sortable'>{% trans col %}</th>
+          {% elseif col in disp_cols_filter2 %}
+            {% set col = col|upper %}
+            <th>{% trans %}"PHONE_"{{col}}{% endtrans %}</th>
+          {% else %}
+            <th></th>
+            {% if col == "edit" and not read_only %}{# row for edit #}
+              <th></th>
+            {% endif %}
+            {% if col == "details" %}
+              <th></th>
+              <th></th>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </tr>
     
-    {#<div id="header">
-      <h1>
-        <a href=".">{% trans "ADDRESS_BOOK" %}</a>
-      </h1>
-      <a href=".">
-        <img src="{{url_images}}title_x2.png" width=340 height=75 title="Addressbook" alt="Addressbook" id="logo" />
-      </a>
-    </div>
+    {# table content (addresses) #}
+    {% for address in addresses %}
+      <tr class='{#{% loop.index0 % 2 ? 'odd' %}#}' name='entry'>
+      {% if is_mobile %}
+        {% addRow("lastname") %}
+        {% addRow("firstname") %}
+        {% addRow("edit") %}
+      {% else %}
+        {% for col in disp_cols %}
+          {% addRow(col) %}
+        {% endfor %}
+      {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+  &nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em><br><br>
+  
+  {#
+  <!-- actions (left: send mail, add to group, delete) -->
+  <div class='left'>
+    <?php
+    if($use_doodle) {
+      echo "<input type='button' value=\"{% trans "DOODLE")."\"   onclick=\"Doodle()\" />";
+    }
+    echo "<input type='button' value=\"{% trans "SEND_EMAIL")."\" onclick=\"MailSelection()\" />";
     
-    <div id="nav">
-      {% include "navigation.html" %}
-    </div>#}
-    
-    <div id="content">
-      {#{% if group_header %}{{group_header}}{% endif %}#}
+    if(! $read_only) {
+      if(isset($table_groups) and $table_groups != "" and !$is_fix_group)
+      {
+        // -- Remove from group --
+        if($group_name != "" and $group_name != "[none]") 
+        {
+          echo "<br/><input type='submit' name='remove' value='{% trans "REMOVE_FROM")." \"$group_name\"'/>";
+        } 
+        //else
+        //echo "<div></div>";
+
+        // -- Add to a group --
+        echo "<br/><input type='submit' name='add' value='{% trans "ADD_TO")."'/>-";
+        echo "<select name='to_group'>";
+        $sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
+        $result = mysql_query($sql);
+        $resultsnumber = mysql_numrows($result);
+  
+        while ($myrow = mysql_fetch_array($result))
+        {
+          echo "<option>".$myrow["group_name"]."</option>\n";
+        }
+        echo "</select>";
+      }
+      echo "<br/><input type='button' value=\"{% trans "DELETE")."\"     onclick=\"DeleteSel()\" />";
+    } ?>
+  </div>
+</form>
+
+<!-- show group footer -->
+<?php if($group_name != "" and $group_myrow['group_footer'] != "") {
+  echo "<hr />".$group_myrow['group_footer']."<hr />";
+} ?>
+
+<!-- print actions -->
+<div class="right" style="clear:right">
+  <form>
+    <input type="button" value="<?php echo msg('PRINT_ALL'); ?>" onclick="window.location.href='view.php?all&amp;print'">
+    <br/><input type="button" value="<?php echo msg('PRINT_PHONES'); ?>" onclick="window.location.href='view.php?all&amp;print&amp;phones'">
+  </form>
+</div>
+
+#}
+
+{% endblock %}
