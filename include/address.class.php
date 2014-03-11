@@ -190,29 +190,39 @@ $phone_delims = array("'", '/', "-", " ", "(", ")", ".");
 
 class Address {
 
-    private $address; // mother of all data
+    public $data; // mother of all data
     
-    private $phones;
-    private $emails;
-    private $groups;
+    public $phones;
+    public $emails;
+    public $groups;
+    
+    public $shortPhones;
+    public $mapAddress;
 
     function __construct($data) {
-    	$this->address = $data;
+    	$this->data = $data;
     	$this->phones = $this->getPhones();
+    	$this->shortPhones = $this->getShortPhones();
     	$this->emails = $this->getEMails();
     	$this->groups = $this->getGroups();
+    	$this->mapAddress = urlencode(trim(str_replace("\r\n", ", ", trim($data["address"]))));
+    	
+    	/*$data = $addr->getData();
+	foreach($myrow as $mycol => $mycolval) {
+	  ${$mycol} = $mycolval;
+	}*/
     }
 
     public function getData() {
-        return $this->address;
+        return $this->data;
     }
 
     public function getEMails() {
 
       $result = array();
-    	if($this->address["email"]   != "") $result[] = $this->address["email"];
-    	if($this->address["email2"]  != "") $result[] = $this->address["email2"];
-    	if($this->address["email3"]  != "") $result[] = $this->address["email3"];
+    	if($this->data["email"]   != "") $result[] = $this->data["email"];
+    	if($this->data["email2"]  != "") $result[] = $this->data["email2"];
+    	if($this->data["email3"]  != "") $result[] = $this->data["email3"];
     	return $result;
     }
 
@@ -221,7 +231,7 @@ class Address {
     }
 
     public function getBirthday() {
-    	return new Birthday($this->address, "b");
+    	return new Birthday($this->data, "b");
     }
     
     public function getGroups() {
@@ -230,7 +240,7 @@ class Address {
       
       $sql = "SELECT DISTINCT $table_groups.group_name FROM $table_groups ";
       $sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
-      $sql .= $this->address["id"];
+      $sql .= $this->data["id"];
       
       $result = mysql_query($sql);
       $groups = array();
@@ -248,10 +258,10 @@ class Address {
     public function getPhones() {
 
       $phones = array();
-    	if($this->address["home"]   != "") $phones[] = $this->address["home"];
-    	if($this->address["mobile"] != "") $phones[] = $this->address["mobile"];
-    	if($this->address["work"]   != "") $phones[] = $this->address["work"];
-    	if($this->address["phone2"] != "") $phones[] = $this->address["phone2"];
+    	if($this->data["home"]   != "") $phones[] = $this->data["home"];
+    	if($this->data["mobile"] != "") $phones[] = $this->data["mobile"];
+    	if($this->data["work"]   != "") $phones[] = $this->data["work"];
+    	if($this->data["phone2"] != "") $phones[] = $this->data["phone2"];
    	  return $phones;
    	}
 
@@ -326,7 +336,7 @@ class Address {
     	return $this->unifyPhone();
     }
 
-    public function shortPhones() {
+    public function getShortPhones() {
     	return $this->unifyPhones($this->getPhones());
     }
 }
@@ -348,12 +358,12 @@ class Addresses {
      	return $replace." LIKE CONCAT('%',".$like.",'%')";    	
     }
 
-    protected function loadBy($load_type, $searchstring, $alphabet = "") {
+    protected function loadBy($load_type, $searchstring, $page, $alphabet = "") {
 
-	    global $base_from_where, $table, $page;
+      global $base_from_where, $table;
 
-     	$sql = "SELECT DISTINCT $table.* FROM $base_from_where";
-
+      $sql = "SELECT DISTINCT $table.* FROM $base_from_where";
+      
       if($load_type == 'id') {
 
 	 	    $sql .= " AND $table.id='$searchstring'";
@@ -361,6 +371,8 @@ class Addresses {
       } elseif ($searchstring) {
 
           $searchwords = explode(" ", $searchstring);
+          echo $searchstring;
+          print_r($searchwords);
 
           foreach($searchwords as $searchword) {
           	$sql .= "AND (   lastname   LIKE '%$searchword%'
@@ -395,19 +407,19 @@ class Addresses {
         	$sql .= "ORDER BY firstname, lastname ASC";
       }
 
-      //* Paging
-      if(!isset($page)) $page = 1;
+      // Paging
+      if(!isset($page) || $page === "") $page = 1;
       $pagesize = 10;
       if($pagesize > 0) {
           $sql .= " LIMIT ".($page-1)*$pagesize.",".$pagesize;
       }
-      //*/
+      
       $this->result = mysql_query($sql);
     }
 
-    public static function withSearchString($searchstring, $alphabet = "") {
+    public static function withSearchString($searchstring, $page, $alphabet = "") {
     	$instance = new self();
-    	$instance->loadBy($searchstring, $alphabet);
+    	$instance->loadBy('', $searchstring, $page, $alphabet);
     	return $instance;
     }
 

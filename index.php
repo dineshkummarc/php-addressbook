@@ -29,152 +29,6 @@
   bindtextdomain("php-addressbook-de", "translations"); 
   // Choose domain 
   textdomain("php-addressbook-de");
-  
-  // main output function
-  $addRow = new Twig_SimpleFunction('addRow', function ($row) {
-    global $addr, $page_ext_qry, $url_images, $read_only, $map_guess, $full_phone, $homepage_guess;
-        
-    $myrow = $addr->getData();
-    
-    foreach($myrow as $mycol => $mycolval) {
-      ${$mycol} = $mycolval;
-    }
-    
-    $email = $addr->firstEMail();
-    if($email != "" && $email != $myrow['email2']) {
-      $email2 = $myrow['email2'];
-    } else {
-      $email2 = "";
-    }
-    
-    // Special value for short phone
-    $row = ($row == "telephone" ? "phone" : $row);
-    
-    if($row == "phone") {
-      if($full_phone) {
-        $phone  = $addr->firstPhone();
-      } else {
-          $phone  = $addr->shortPhone();
-      }
-    }
-    
-    switch ($row) {
-      case "select":
-        $emails = implode(getMailerDelim(), $addr->getEMails());
-        echo "<td class='center'><input type='checkbox' id='$id' name='selected[]' value='$id' title='Select ($firstname $lastname)' alt='Select ($firstname $lastname)' accept='$emails' /></td>";
-        break;
-      case "first_last":
-        echo "<td>$firstname ".(!empty($middlename) ? $middlename." " : "")."$lastname</td>";
-        break;
-      case "last_first":
-        echo "<td>".(!empty($middlename) ? $middlename." " : "")."$lastname $firstname</td>";
-        break;
-      case "photo":
-//        echo "<td>".embeddedImg($photo)."</td>";
-///*
-        if($photo != "") {
-          echo "<td><img width=75 src='photo.php?id=".$id."'></td>";
-        } else {
-          echo "<td></td>";
-        }
-//*/        
-        break;
-      case "email":
-      case "email2":
-        echo "<td><a href='".getMailer()."${$row}'>${$row}</a></td>";
-        break;
-      case "all_phones":
-        $phones = $addr->shortPhones();
-          echo "<td>".implode("<br>", $phones)."</td>";
-        break;
-      case "all_emails":
-        $emails = $addr->getEMails();
-        $amails = array();
-        foreach($emails as $amail) {
-          $amails[] = "<a href='".getMailer()."$amail'>$amail</a>";
-        }
-        echo "<td>".implode("<br>", $amails)."</td>";
-        break;
-      case "all_groups":
-        $groups = $addr->getGroups();
-        $groupLinks = array();
-        foreach($groups as $group) {
-          $groupLinks[] = "<a href='index.php?group=$group'>$group</a>";
-        }
-        echo "<td>".implode("<br>", $groupLinks)."</td>";
-        break;
-      case "address":
-        echo "<td>".str_replace("\n", "<br>", $address)."</td>";
-        break;
-      case "edit":
-        echo "<td class='center'><a href='view${page_ext_qry}id=$id'><img src='${url_images}icons/status_online.png' title='".ucfmsg('DETAILS')."' alt='".ucfmsg('DETAILS')."' /></a></td>";
-        if(! $read_only) {
-          echo "<td class='center'><a href='edit${page_ext_qry}id=$id'><img src='${url_images}icons/pencil.png' title='".ucfmsg('EDIT')."' alt='".ucfmsg('EDIT')."'/></a></td>";
-        }
-        break;
-      case "vcard":
-        echo "<td class='center'><a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icons/vcard.png' title='vCard' alt='vCard'/></a></td>";        
-        break;
-      case "map":      
-        if($map_guess) {
-          if($myrow["address"] != "") {
-            echo "<td class='center'>";
-            echo "  <a href='http://maps.google.com/maps?q=".urlencode(trim(str_replace("\r\n", ", ", trim($myrow["address"]))))."&amp;t=h' target='_blank'>";
-            echo "  <img src='${url_images}icons/car.png' title='Google Maps' alt='vCard'/></a>";
-            echo "</td>";
-          }
-          else echo "<td/>";
-        }
-        break;
-      case "homepage":    
-        if($homepage != "") {
-          $homepage = (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0
-                      ? $homepage : "http://".$homepage);
-          echo "<td class='center'>";
-          echo "  <a href='$homepage'><img src='${url_images}icons/house.png' title='$homepage' alt='$homepage'/></a>";
-          echo "</td>";
-        } elseif($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "") {
-          echo "<td class='center'>";
-          echo "  <a href='http://$homepage'><img src='${url_images}icons/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a>";
-          echo "</td>";
-        } else {
-          echo "<td/>";
-        }                   
-        break;
-      case "details":
-        echo "<td class='center'>";
-        echo "  <a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icons/vcard.png' title='vCard' alt='vCard'/></a>";
-        echo "</td>";        
-        if($map_guess) {
-          if($myrow["address"] != "") {
-            echo "<td class='center'>";
-            echo "  <a href='http://maps.google.com/maps?q=".urlencode(trim(str_replace("\r\n", ", ", trim($myrow["address"]))))."&amp;t=h' target='_blank'>";
-            echo "  <img src='${url_images}icons/car.png' title='Google Maps' alt='vCard'/></a>";
-            echo "</td>";
-          }
-          else echo "<td/>";
-        }
-        
-        if($homepage != "") {
-          $homepage = (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0
-                      ? $homepage : "http://".$homepage);
-          echo "<td class='center'>";
-          echo "  <a href='$homepage'><img src='${url_images}icons/house.png' title='$homepage' alt='$homepage'/></a>";
-          echo "</td>";
-        } elseif($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "") {
-          echo "<td class='center'>";
-          echo "  <a href='http://$homepage'><img src='${url_images}icons/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a>";
-          echo "</td>";
-        } else {
-          echo "<td/>";
-        }                   
-        break;
-      default: // firstname, lastname, home, mobile, work, fax, phone2
-        echo "<td>${$row}</td>";
-    }
-  });
-  $twig->addFunction($addRow);
-
     
   $data["skin_color"] = $skin_color;
   // Define default map guessing
@@ -214,42 +68,54 @@
   
   $data["url_images"] = $url_images;
   $data["remote_addr"] = $_SERVER['REMOTE_ADDR'];
-  
+  $data["read_only"] = $read_only;
   $data["use_ajax"] = $use_ajax;
+  $data["use_doodle"] = $use_doodle;
   $data["version"] = $version;
   
   $is_mobile = false;
   $data["is_mobile"] = $is_mobile;
   
+  $data["mailer"] = getMailer();
+  
+  $data["map_guess"] = $map_guess;
+  
+  $data["url_images"] = $url_images;
+  
   $data["disp_cols"] = $disp_cols;
+  
+  $data["searchstring"] = $searchstring;
 
-  if($group_name) $data["group_name"] = $group_name;
+  if($group_name) {
+    $data["group_name"] = $group_name;
+  }
+  
+  $data["is_fix_group"] = $is_fix_group;
+  $data["table_groups"] = $table_groups;
   
   if(isset($table_groups) and $table_groups != "" and !$is_fix_group) {
     $sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
     $result_groups = mysql_query($sql);
-    $group_names = array();
+    $data["group_names"] = array();
 
     while ($myrow = mysql_fetch_array($result_groups)) {
-        $group_name[] = $myrow["group_name"];
+        $data["group_names"][] = $myrow["group_name"];
     }
-    
-    $data["group_names"] = $group_names;
   }
   
   // get addresses
   // Pagination
   // http://php.about.com/od/phpwithmysql/ss/php_pagination.htm
-  $limit = 
-  $page = $_GET["page"];
-  if(!is_int($page)) {
-    echo $page;
+  $limit = 10;
+  if(!is_numeric($page)) {
     $page = 1;
+  } else {
+    $page = (int)$page;
   }
 
-  $addresses = Addresses::withSearchString($searchstring, $alphabet);
+  $addresses = Addresses::withSearchString($searchstring, $page, $alphabet);
   $result = $addresses->getResults();
-  $resultsnumber = $addresses->countAll();//mysql_numrows($result);
+  $data["resultsnumber"] = $addresses->countAll();//mysql_numrows($result);
   
   $data["addresses"] = array();
   while ($addr = $addresses->nextAddress()) {
@@ -257,5 +123,4 @@
   }
 
   header('Content-Type:text/html; charset=UTF-8');
-  echo "Test";
   echo $twig->render('index.html', $data);
