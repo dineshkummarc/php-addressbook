@@ -1,3 +1,51 @@
+{% macro pagination(page, last, limit, prev, next) %}
+  {# Pagination 
+    http://php.about.com/od/phpwithmysql/ss/php_pagination.html
+  #}
+  <div class="right">
+    {% if last > 1 %}
+      <strong>
+        {% if prev %}
+          <a href="index.php?page={{prev}}&limit={{limit}}">< {% trans "PREV" %}</a>
+        {% else %}
+          < {% trans "PREV" %}
+        {% endif %}
+        
+        {% set adjacents = 2 %}
+        {% if page > (1 + adjacents) %}...{%endif%}
+                  
+        {% for i in range(page-adjacents,page+adjacents) %}
+          {% if i >= 1 and i <= last %}
+            {% if i == page %}
+              {{i}}
+            {% else %}
+              <a href="index.php?page={{i}}&limit={{limit}}">{{i}}</a>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        
+        {% if page < (last - adjacents) %}...{%endif%}
+        
+        {% if next %}
+          <a href="index.php?page={{next}}&limit={{limit}}">{% trans "NEXT" %} ></a>
+        {% else %}
+          {% trans "NEXT" %} >
+        {% endif %}
+      </strong>
+      &nbsp;&nbsp;
+      <form id="pagination_limit" method="get">
+        <select name="limit" onChange="this.parentNode.submit()">
+          {% set limits = ["10", "20", "50", "100"] %}
+          <option value="0">{% trans "ALL" %}</option>
+          {% for i in limits %}
+              <option value="{{i}}" {% if limit == i %}selected{% endif %}>{{i}}</option>
+          {% endfor %}
+        </select>
+      </form>
+    {% endif %}
+  </div>
+{% endmacro %}
+
 <ul>
   <li>
     <a href="./{% if group and not is_fix_group %}?group={{group}}{% endif %}">{% trans 'HOME' %}</a>

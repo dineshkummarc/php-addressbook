@@ -1,6 +1,7 @@
 {% extends "base.html" %} 
 
 {% from "index_cols.html" import addCol %}
+{% from "navigation.html" import pagination %}
 
 {% block content %}
 {% if group_header %}{{group_header}}{% endif %}
@@ -39,10 +40,10 @@
   <form id="right" method="get">
     <select name="group" onchange="this.parentNode.submit()">
       <option value="">[{% trans "ALL" %}]</option>
-      <option value="[none]">[{% trans "NONE" %}]</option>
+      <option value="[none]" {% if group_name == "[none]" %}selected{% endif %}>[{% trans "NONE" %}]</option>
       {% for group in group_names %}
-	  <option 
-	    {% if group_name %}{% if group == group_name %}selected{% endif %}{% endif %}>
+	  <option value="[{{group}}]"
+	    {% if group_name == ("[" ~ group ~ "]") %}selected{% endif %}>
 	    [{{group}}]
 	  </option>
       {% endfor %}
@@ -55,7 +56,15 @@
 {# output of table #}
 <form accept-charset="utf-8" name="MainForm" method="post" action="group.php">
   <input type="hidden" name="group" value="{{group}}" />
-  &nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em><br><br>
+  
+  <div class="left">
+    &nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em>
+  </div>
+  
+  {{ pagination(page, last, limit, prev, next) }}
+  
+  <div style="clear:both"><br/></div>
+  
   <table id="maintable" class="sortcompletecallback-applyZebra">
     {# table header #}
     <tr>
@@ -98,7 +107,14 @@
       </tr>
     {% endfor %}
   </table>
-  &nbsp;<input type='checkbox' id='MassCB' onclick="MassSelection()" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em><br><br>
+  
+  <div class="left">
+    &nbsp;<input type='checkbox' id='MassCB' onclick="MassSelection()" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em>
+  </div>
+
+  {{ pagination(page, last, limit, prev, next) }}
+  
+  <div style="clear:both"><br/></div>
   
   {# actions (left: send mail, add to group, delete) #}
   <div class='left'>

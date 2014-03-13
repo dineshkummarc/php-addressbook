@@ -4,6 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="Description" content="PHP-Addressbook" />
   <meta name="Keywords" content="" />
+  {% block meta %}{% endblock %}
 
   <!-- stylesheets -->
   <link rel="stylesheet" type="text/css" href="style.css"/>
@@ -33,7 +34,7 @@
     </style>
   {% endif %}
   
-  <title>{% trans "ADDRESS_BOOK" %}{% if group_name %} {{group_name}}{% endif %}:</title>
+  <title>{% block title %}{% trans "ADDRESS_BOOK" %}{% if group_name %} {{group_name}}{% endif %}:{% endblock %}</title>
 </head>
   
 <body>
@@ -65,11 +66,10 @@
     
     <div id="content">
       {% block content %}{% endblock %}
-      <br/>
-      <br/>
     </div>
         
     <div id="footer">
+      <br/>
       <ul>
         <li>
           <a href="http://sourceforge.net/projects/php-addressbook/">php-addressbook</a> 

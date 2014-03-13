@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% if refresh %}
+  {% block meta %}
+    <meta HTTP-EQUIV="REFRESH" content="3;url=.">
+  {% endblock %}
+{% endif %}
+
+{% if title %}
+  {% block title %}
+    {{title}}
+  {% endblock %}
+{% endif %}
+
+{% block content %}
+<h1>{% trans 'EDIT_ADD_ENTRY' %}</h1>
+
+{% if saved %}
+  <br /><div class='msgbox'>{% trans "Information entered into address book"%}.
+  <br /><i><a href='edit.php'>{% trans "add next" %}</a> {% trans "or return to" %} <a href='index.php'>home page</a>.</i></div>
+{% endif %}
+
+{% if updated %}
+  <br />
+  <div class='msgbox'>
+    {% trans 'ADDRESS_BOOK' %} {% trans 'UPDATED' %}<br />
+    <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
+  </div>
+{% else %}
+  <br />
+  <div class='msgbox'>
+    {% trans 'INVALID' %} ID.<br />
+    <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
+  </div>
+{% endif %}
+
+{% if editing_disabled %}
+  <br /><div class='msgbox'>{% trans "Editing is disabled." %}</div>
+{% endif %}
+
+{% if address %}
+  <form enctype="multipart/form-data" 
+        accept-charset="utf-8"
+        method="post"
+        action="edit.php">
+
+    <input type="submit" name="update" value="{% trans 'UPDATE' %}" /><br />
+
+    <input type="hidden" name="id" value="{{ address['id'] ? address['id'] }}" />
+    <label>{% trans "FIRSTNAME" %}:</label>
+    <input type="text" name="firstname" size="35" value="{{address['firstname']}}" /><br />
+
+    <label>{% trans "MIDDLENAME" %}:</label>
+    <input type="text" name="middlename" size="15" value="{{address['middlename']}}" /><br /><br />
+ 
+    <label>{% trans "LASTNAME" %}:</label>
+    <input type="text" name="lastname" size="35" value="{{address['lastname']}}" /><br />
+
+    <label>{% trans "NICKNAME" %}:</label>
+    <input type="text" name="nickname" size="35" value="{{address['nickname']}}" /><br />
+
+    <label>{% trans "PHOTO" %}:</label>
+    <input type="file"  name="photo" /><br />
+    
+    <label>{% trans "DELETE" %}:</label>
+    <input type="checkbox"  name="delete_photo" /><br />
+
+    <label>{% trans "COMPANY" %}:</label>
+    <input type="text" name="company" size="35" value="{{address['company']}}" /><br />
+
+    <label>{% trans "TITLE" %}:</label>
+    <input type="text" name="title" size="35" value="{{address['title']}}" /><br />
+
+    <label>{% trans "ADDRESS" %}:</label>
+    <textarea name="address" rows="5" cols="35">{{address["address"]}}</textarea><br />
+
+    <label>{% trans "TELEPHONE" %}</label><br /><br class="clear" />
+
+    <label>{% trans "PHONE_HOME" %}:</label>
+    <input type="text" name="home" value="{{address['home']}}" /><br />
+
+    <label>{% trans "PHONE_MOBILE" %}:</label>
+    <input type="text" name="mobile" value="{{address['mobile']}}" /><br />
+
+    <label>{% trans "PHONE_WORK" %}:</label>
+    <input type="text" name="work" value="{{address['work']}}" /><br />
+
+    <label>{% trans "FAX" %}:</label>
+    <input type="text" name="fax" value="{{address['fax']}}" /><br />
+
+    <label>&nbsp;</label><br /><br class="clear" />
+
+    <label>{% trans "EMAIL" %}:</label>
+    <input type="text" name="email" size="35" value="{{address['email']}}" /><br />
+
+    <label>{% trans "EMAIL" %}2:</label>
+    <input type="text" name="email2" size="35" value="{{address['email2']}}" /><br />
+
+    <label>{% trans "EMAIL" %}3:</label>
+    <input type="text" name="email3" size="35" value="{{address['email3']}}" /><br />
+
+    <label>{% trans "HOMEPAGE" %}:</label>
+    <input type="text" name="homepage" size="35" value="{{address['homepage']}}" /><br />
+
+    <label>{% trans "BIRTHDAY" %}:</label>
+        <select name="bday">
+          <option value="{{address['bday']}}" selected="selected">{{ address["bday"] == 0 ? "-" : $address["bday"] }}</option>
+          <option value="0">-</option>
+          {% for i in 1..31 %}
+            <option value="{{i}}">{{i}}</option>
+          {% endfor %}
+        </select>
+        <select name="bmonth">
+          <option value="{{address['bmonth']}}" selected="selected">{% trans address["bmonth"] %}</option>
+          <option value="-">-</option>
+          <option value="January">{% trans "JANUARY" %}</option>
+          <option value="February">{% trans "FEBRUARY" %}</option>
+          <option value="March">{% trans "MARCH" %}</option>
+          <option value="April">{% trans "APRIL" %}</option>
+          <option value="May">{% trans "MAY" %}</option>
+          <option value="June">{% trans "JUNE" %}</option>
+          <option value="July">{% trans "JULY" %}</option>
+          <option value="August">{% trans "AUGUST" %}</option>
+          <option value="September">{% trans "SEPTEMBER" %}</option>
+          <option value="October">{% trans "OCTOBER" %}</option>
+          <option value="November">{% trans "NOVEMBER" %}</option>
+          <option value="December">{% trans "DECEMBER" %}</option>
+        </select>
+        <input class="byear" type="text" name="byear" size="4" maxlength="4" value="{{address['byear']}}" /><br />
+
+    <label>{% trans "ANNIVERSARY" %}:</label>
+        <select name="aday">
+          <option value="{{address['aday']}}" selected="selected">{{ address["aday"] == 0 ? "-" : $address["aday"] }}</option>
+          <option value="0">-</option>
+          {% for i in 1..31 %}
+            <option value="{{i}}">{{i}}</option>
+          {% endfor %}
+        </select>
+        <select name="amonth">
+          <option value="{{address['amonth'] ?>" selected="selected">{% trans address["amonth"] %}</option>
+          <option value="-">-</option>
+          <option value="january">{% trans "january" %}</option>
+          <option value="february">{% trans "february" %}</option>
+          <option value="march">{% trans "march" %}</option>
+          <option value="april">{% trans "april" %}</option>
+          <option value="may">{% trans "may" %}</option>
+          <option value="june">{% trans "june" %}</option>
+          <option value="july">{% trans "july" %}</option>
+          <option value="august">{% trans "august" %}</option>
+          <option value="september">{% trans "september" %}</option>
+          <option value="october">{% trans "october" %}</option>
+          <option value="november">{% trans "november" %}</option>
+          <option value="december">{% trans "december" %}</option>
+        </select>
+        <input class="byear" type="text" name="ayear" size="4" maxlength="4" value="{{address['ayear']}}" /><br />
+
+    <label>{% trans "GROUP" %}:</label>
+        {% if table_groups and not is_fix_group %}
+          <select name="new_group">
+            {% for group in group_names %}
+              <option value="[{{group}}]"
+                {% if group_name == ("[" ~ group ~ "]") %}selected{% endif %}>
+                [{{group}}]
+              </option>
+            {% endfor %}
+          </select>
+        {% endif %}
+    <br />
+      
+    <br />
+    <label><b>{% trans "SECONDARY" %}</b></label><br /><br class="clear" />
+
+    <label>{% trans "ADDRESS" %}:</label>
+    <textarea name="address2" rows="5" cols="35">{{address["address2"]}}</textarea><br />
+
+    <label>{% trans "PHONE_HOME" %}:</label>
+    <input type="text" name="phone2" value="{{address['phone2']}}" /><br />
+
+    <label>{% trans "NOTES" %}:</label>
+    <textarea name="notes" rows="5" cols="35">{{address["notes"]}}</textarea><br /><br />
+
+    <input type="submit" name="update" value="{% trans 'UPDATE' %}" />
+  </form>
+  <form method="get" action="delete.php">
+    <input type="hidden" name="id" value="{{address['id']}}" />
+    <input type="submit" name="update" value="{% trans 'DELETE' %}" />
+  </form>
+{% endif %}
+
+{% if quickadd %}
+  <form accept-charset="utf-8" method="post" name="quickadd" >
+    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/><br/>
+
+    <label>{% trans "ADDRESS" %}:</label>
+    <textarea name="address" rows="20" tabindex="0"></textarea><br/><br/>
+    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/>
+  </form>
+  <script type="text/javascript">
+          document.quickadd.address.focus();
+  </script>
+{% endif %}
+
+{% endblock %}

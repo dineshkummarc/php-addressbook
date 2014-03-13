@@ -106,14 +106,17 @@
   // get addresses
   // Pagination
   // http://php.about.com/od/phpwithmysql/ss/php_pagination.htm
-  $limit = 10;
+  if(!isset($limit)) $limit = 10;
+  $data["limit"] = $limit;
+    
   if(!is_numeric($page)) {
     $page = 1;
   } else {
     $page = (int)$page;
+    if($page < 1) $page = 1;
   }
 
-  $addresses = Addresses::withSearchString($searchstring, $page, $alphabet);
+  $addresses = Addresses::withSearchString($searchstring, $page, $data["limit"], $alphabet);
   $result = $addresses->getResults();
   $data["resultsnumber"] = $addresses->countAll();//mysql_numrows($result);
   
@@ -121,6 +124,14 @@
   while ($addr = $addresses->nextAddress()) {
     $data["addresses"][] = $addr;
   }
+  
+  $data["last"] = ceil($data["resultsnumber"]/$data["limit"]);
+  if ($page > $data["last"]) {
+    $page = $data["last"]; 
+  }
+  $data["page"] = $page;
+  if ($limit > 0 && $page > 1) $data["prev"] = $page - 1;
+  if ($limit > 0 && $page < $data["last"]) $data["next"] = $page + 1;
 
   header('Content-Type:text/html; charset=UTF-8');
   echo $twig->render('index.html', $data);

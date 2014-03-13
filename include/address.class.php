@@ -358,7 +358,7 @@ class Addresses {
      	return $replace." LIKE CONCAT('%',".$like.",'%')";    	
     }
 
-    protected function loadBy($load_type, $searchstring, $page, $alphabet = "") {
+    protected function loadBy($load_type, $searchstring, $page, $limit, $alphabet = "") {
 
       global $base_from_where, $table;
 
@@ -409,17 +409,16 @@ class Addresses {
 
       // Paging
       if(!isset($page) || $page === "") $page = 1;
-      $pagesize = 10;
-      if($pagesize > 0) {
-          $sql .= " LIMIT ".($page-1)*$pagesize.",".$pagesize;
+      if($limit > 0) {
+          $sql .= " LIMIT ".($page-1)*$limit.",".$limit;
       }
       
       $this->result = mysql_query($sql);
     }
 
-    public static function withSearchString($searchstring, $page, $alphabet = "") {
+    public static function withSearchString($searchstring, $page, $limit = 10, $alphabet = "") {
     	$instance = new self();
-    	$instance->loadBy('', $searchstring, $page, $alphabet);
+    	$instance->loadBy('', $searchstring, $page, $limit, $alphabet);
     	return $instance;
     }
 
