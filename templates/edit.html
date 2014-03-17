@@ -15,31 +15,28 @@
 {% block content %}
 <h1>{% trans 'EDIT_ADD_ENTRY' %}</h1>
 
-{% if saved %}
-  <br /><div class='msgbox'>{% trans "Information entered into address book"%}.
-  <br /><i><a href='edit.php'>{% trans "add next" %}</a> {% trans "or return to" %} <a href='index.php'>home page</a>.</i></div>
-{% endif %}
-
-{% if updated %}
-  <br />
-  <div class='msgbox'>
-    {% trans 'ADDRESS_BOOK' %} {% trans 'UPDATED' %}<br />
-    <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
-  </div>
-{% else %}
-  <br />
-  <div class='msgbox'>
-    {% trans 'INVALID' %} ID.<br />
-    <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
-  </div>
-{% endif %}
-
-{% if editing_disabled %}
-  <br /><div class='msgbox'>{% trans "Editing is disabled." %}</div>
-{% endif %}
-
-{% if address %}
-  <form enctype="multipart/form-data" 
+{% if action == "submit" %}
+  {% if saved %}
+    <br /><div class='msgbox'>{% trans "Information entered into address book"%}.
+    <br /><i><a href='edit.php'>{% trans "add next" %}</a> {% trans "or return to" %} <a href='index.php'>home page</a>.</i></div>
+  {% endif %}
+{% elseif action == "update" %}
+  {% if updated %}
+    <br />
+    <div class='msgbox'>
+      {% trans 'ADDRESS_BOOK' %} {% trans 'UPDATED' %}<br />
+      <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
+    </div>
+  {% else %}
+    <br />
+    <div class='msgbox'>
+      {% trans 'INVALID' %} ID.<br />
+      <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
+    </div>
+  {% endif %}
+{% elseif action == "id" %}
+  <form name="theform"
+        enctype="multipart/form-data" 
         accept-charset="utf-8"
         method="post"
         action="edit.php">
@@ -52,7 +49,7 @@
 
     <label>{% trans "MIDDLENAME" %}:</label>
     <input type="text" name="middlename" size="15" value="{{address['middlename']}}" /><br /><br />
- 
+
     <label>{% trans "LASTNAME" %}:</label>
     <input type="text" name="lastname" size="35" value="{{address['lastname']}}" /><br />
 
@@ -104,14 +101,15 @@
 
     <label>{% trans "BIRTHDAY" %}:</label>
         <select name="bday">
-          <option value="{{address['bday']}}" selected="selected">{{ address["bday"] == 0 ? "-" : $address["bday"] }}</option>
+          <option value="{{address['bday']}}" selected="selected">{{ address["bday"] == 0 ? "-" : address["bday"] }}</option>
           <option value="0">-</option>
           {% for i in 1..31 %}
             <option value="{{i}}">{{i}}</option>
           {% endfor %}
         </select>
         <select name="bmonth">
-          <option value="{{address['bmonth']}}" selected="selected">{% trans address["bmonth"] %}</option>
+          {% set bmonth = address["bmonth"] %}
+          <option value="{{bmonth}}" selected="selected">{% trans bmonth %}</option>
           <option value="-">-</option>
           <option value="January">{% trans "JANUARY" %}</option>
           <option value="February">{% trans "FEBRUARY" %}</option>
@@ -130,14 +128,15 @@
 
     <label>{% trans "ANNIVERSARY" %}:</label>
         <select name="aday">
-          <option value="{{address['aday']}}" selected="selected">{{ address["aday"] == 0 ? "-" : $address["aday"] }}</option>
+          <option value="{{address['aday']}}" selected="selected">{{ address["aday"] == 0 ? "-" : address["aday"] }}</option>
           <option value="0">-</option>
           {% for i in 1..31 %}
             <option value="{{i}}">{{i}}</option>
           {% endfor %}
         </select>
         <select name="amonth">
-          <option value="{{address['amonth'] ?>" selected="selected">{% trans address["amonth"] %}</option>
+          {% set bmonth = address["amonth"] %}
+          <option value="{{amonth}}" selected="selected">{% trans amonth %}</option>
           <option value="-">-</option>
           <option value="january">{% trans "january" %}</option>
           <option value="february">{% trans "february" %}</option>
@@ -185,19 +184,58 @@
     <input type="hidden" name="id" value="{{address['id']}}" />
     <input type="submit" name="update" value="{% trans 'DELETE' %}" />
   </form>
+  {% if quickadd %}
+    <form accept-charset="utf-8" method="post" name="quickadd" >
+      <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/><br/>
+
+      <label>{% trans "ADDRESS" %}:</label>
+      <textarea name="address" rows="20" tabindex="0"></textarea><br/><br/>
+      <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/>
+    </form>
+    <script type="text/javascript">
+            document.quickadd.address.focus();
+    </script>
+  {% endif %}
+  
 {% endif %}
 
-{% if quickadd %}
-  <form accept-charset="utf-8" method="post" name="quickadd" >
-    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/><br/>
 
-    <label>{% trans "ADDRESS" %}:</label>
-    <textarea name="address" rows="20" tabindex="0"></textarea><br/><br/>
-    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/>
-  </form>
-  <script type="text/javascript">
-          document.quickadd.address.focus();
+
+{# {% if not editing_disabled %}
+  {% if table_groups and not is_fix_group %}
+    <label>{% trans 'GROUP' %}:</label>
+    <select name='new_group'>
+      <option value='[none]' {% if group_name == '[none]' %}selected{% endif %}>[{% trans 'NONE' %}]</option>
+      {% for group in group_names %}
+          <option value='[{{group}}]' 
+            {% if group_name == '[' ~ group ~ ']' %}selected{% endif %}>
+            [{{group}}]
+          </option>
+      {% endfor %}
+    </select>
+  {% endif %}
+  
+  <br />
+  <label><b>{% trans 'SECONDARY' %}</b></label><br /><br class='clear' />
+
+  <label>{% trans 'ADDRESS' %}:</label>
+  <textarea name='address2' rows='5' cols='35'></textarea><br />
+
+  <label>{% trans 'PHONE_HOME' %}:</label>
+  <input type='text' name='phone2'  value='{{address['phone2']}}' size='35' /><br />
+
+  <label>{% trans 'NOTES' %}:</label>
+  <textarea name='notes' rows='5' cols='35'></textarea><br /><br />
+
+  <input type='submit' name='submit' value='{% trans 'ENTER' %}' />
+  <!--</form>-->
+  <script type='text/javascript'>
+    document.theform.email.focus();
   </script>
+{% endif %} #}
+
+{% if editing_disabled %}
+  <br /><div class='msgbox'>{% trans "Editing is disabled." %}</div>
 {% endif %}
 
 {% endblock %}

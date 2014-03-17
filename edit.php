@@ -1,8 +1,12 @@
 <?php
 
+require_once 'vendor/autoload.php';
+
 include ("include/dbconnect.php");
 include ("include/format.inc.php");
 include ("include/photo.class.php");
+
+require_once 'include/templating.php';
 
 if($submit || $update) { 
   $addr["refresh"] = true;
@@ -23,7 +27,7 @@ if( ($resultsnumber == 0 && !isset($all)) || (!$id && !isset($all))) {
 //   include ("include/header.inc.php");
 } 
 else {
-  $data["title"] = r["firstname"].(isset($r['middlename']) ? " ".$r['middlename']:"")." ".$r["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n";
+  $data["title"] = $r["firstname"].(isset($r['middlename']) ? " ".$r['middlename']:"")." ".$r["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n";
   /* ?><title><?php echo $r["firstname"].(isset($r['middlename']) ? " ".$r['middlename']:"")." ".$r["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n"; ?></title><?php
    if( !isset($_GET["print"]))
    {
@@ -34,8 +38,8 @@ else {
    }*/
 }
 
-if($submit)
-{
+if($submit) {
+  $data["action"] = "submit";
   if(! $read_only)
   {
     /*
@@ -114,8 +118,8 @@ if($submit)
     $data["editing_disabled"] = true;
   }
 }
-else if($update)
-{
+else if($update) {
+  $data["action"] = "update";
   if(! $read_only)
   {
     $addr['id']        = $id;
@@ -165,8 +169,8 @@ else if($update)
   } else
     $data["editing_disabled"] = true;
 }
-else if($id)
-{
+else if($id) {
+  $data["action"] = "id";
   if(! $read_only)
   {
     $result = mysql_query("SELECT * FROM $base_from_where AND $table.id=$id",$db);
@@ -188,18 +192,19 @@ else if($id)
           $data["group_names"][] = $myrow["group_name"];
       }
     }
-  } 
-  else {
-    $data["editing_disabled"] = true;
   }
   else if( !(isset($_POST['quickskip']) || isset($_POST['quickadd'])) 
          && (isset($_GET['quickadd']) || isset($_POST['quickadd']) || $quickadd))
   {
     $data["quickadd"] = true;
   }
+  else {
+    $data["editing_disabled"] = true;
+  }
 
 }
 else {
+  $data["action"] = "id";
   if(! $read_only) {
     if(isset($_POST['quickadd'])) {
       
@@ -209,51 +214,15 @@ else {
     } else {        
       $addr = array();        
     }
-
-    <?php       
-    if(isset($table_groups) and $table_groups != "" and !$is_fix_group) { ?>
-
-  <label><?php echo ucfmsg("GROUP") ?>:</label>
-        <select name="new_group">
-        <?php
-          if($group_name != "") 
-          {
-            echo "<option>$group_name</option>\n";
-          } ?>
-          <option value="[none]">[<?php echo msg("NONE"); ?>]</option>
-          <?php
-          $sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
-          $result_groups = mysql_query($sql);
-          $result_gropup_snumber = mysql_numrows($result_groups);
-          
-          while ($myrow_group = mysql_fetch_array($result_groups))
-          {
-            echo "<option>".$myrow_group["group_name"]."</option>\n";
-          }
-        ?>
-        </select><br />
-    <?php } ?>
     
-    <br />
-    <label><b><?php echo ucfmsg("SECONDARY") ?></b></label><br /><br class="clear" />
-
-    <label><?php echo ucfmsg("ADDRESS") ?>:</label>
-    <textarea name="address2" rows="5" cols="35"></textarea><br />
-
-    <label><?php echo ucfmsg("PHONE_HOME") ?>:</label>
-    <input type="text" name="phone2"  value="<?php echoIfSet($data, 'phone2'); ?>" size="35" /><br />
-
-    <label><?php echo ucfmsg("NOTES") ?>:</label>
-    <textarea name="notes" rows="5" cols="35"></textarea><br /><br />
-
-    <input type="submit" name="submit" value="<?php echo ucfmsg('ENTER') ?>" />
-  </form>
-  <script type="text/javascript">
-    document.theform.email.focus();
-  </script>
-<?php
-  } else
-    echo "<br /><div class='msgbox'>Editing is disabled.</div>";
+    $data["address"] = $addr;
+  } 
+  else {
+    $data["editing_disabled"] = true;
+  }
 }
 
-include ("include/footer.inc.php"); ?>
+header('Content-Type:text/html; charset=UTF-8');
+echo $twig->render('edit.html', $data);
+
+//include ("include/footer.inc.php"); ?>
