@@ -8,26 +8,31 @@ include ("include/photo.class.php");
 
 require_once 'include/templating.php';
 
-if($submit || $update) { 
-  $addr["refresh"] = true;
+$data["refresh"] = false;
+if((isset($submit) && $submit) || (isset($update) && $update)) { 
+  $data["refresh"] = true;
 }
 
-$resultsnumber = 0;
-if ($id) {
 
+//$resultsnumber = 0;
+if ($id) {
    $sql = "SELECT * FROM $base_from_where AND $table.id='$id'";
    $result = mysql_query($sql, $db);
    $data["r"] = mysql_fetch_array($result);
+   
+   $data["title"] = $data["r"]["firstname"]
+      .(isset($data["r"]['middlename']) ? " ".$data["r"]['middlename']:"")." "
+      .$data["r"]["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n";
 
-   $resultsnumber = mysql_numrows($result);
+   //$resultsnumber = mysql_numrows($result);
 }
 
-if( ($resultsnumber == 0 && !isset($all)) || (!$id && !isset($all))) {
+//if( ($resultsnumber == 0 && !isset($all)) || (!$id && !isset($all))) {
 //   ?><!--<title>Address book <?php //echo ($group_name != "" ? "($group_name)":""); ?></title>--><?php
 //   include ("include/header.inc.php");
-} 
-else {
-  $data["title"] = $r["firstname"].(isset($r['middlename']) ? " ".$r['middlename']:"")." ".$r["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n";
+//} 
+//else {
+  
   /* ?><title><?php echo $r["firstname"].(isset($r['middlename']) ? " ".$r['middlename']:"")." ".$r["lastname"]." ".($group_name != "" ? "($group_name)":"")."\n"; ?></title><?php
    if( !isset($_GET["print"]))
    {
@@ -36,7 +41,7 @@ else {
      echo '</head><body>';
      // echo '</head><body onload="javascript:window.setTimeout(window.print(self), 1000)";>';
    }*/
-}
+//}
 
 if($submit) {
   $data["action"] = "submit";
@@ -93,6 +98,7 @@ if($submit) {
     $addr['address2']  = $address2;
     $addr['phone2']    = $phone2;
     $addr['notes']     = $notes;
+    $addr['groups']    = $groups;
     
     if (isset($_FILES["photo"]) && $_FILES["photo"]["error"] <= 0) {
       $file_tmp_name = $_FILES["photo"]["tmp_name"];
@@ -102,16 +108,16 @@ if($submit) {
       $addr['photo'] = $photo->getBase64();
     } 
     
-    if(isset($table_groups) and $table_groups != "" ) {
+    /*if(isset($table_groups) and $table_groups != "" ) {
       if( !$is_fix_group ) {
         $g_name = $new_group;
       } else {
         $g_name = $group_name;
-      }
-      saveAddress($data, $g_name);
-    
-      $data["saved"] = true;
-    }
+      }*/
+      
+    saveAddress($data, $g_name);
+    $data["saved"] = true;
+    //}
 
   } 
   else {
@@ -147,6 +153,7 @@ else if($update) {
     $addr['address2']  = $address2;
     $addr['phone2']    = $phone2;
     $addr['notes']     = $notes;
+    $addr['groups']    = $groups;
 
     $keep_photo = true;
     if(isset($delete_photo)) {
@@ -165,7 +172,7 @@ else if($update) {
       $addr['photo']  = '';
     }
     
-    $data["updated"] = updateAddress($data, $keep_photo);
+    $data["updated"] = updateAddress($addr, $keep_photo);
   } else
     $data["editing_disabled"] = true;
 }
@@ -173,12 +180,18 @@ else if($id) {
   $data["action"] = "id";
   if(! $read_only)
   {
-    $result = mysql_query("SELECT * FROM $base_from_where AND $table.id=$id",$db);
-    $data["address"] = mysql_fetch_array($result);
+    //$result = mysql_query("SELECT * FROM $base_from_where AND $table.id=$id",$db);
+    //$data["address"] = mysql_fetch_array($result);
+    
+    $addresses = Addresses::withID($id);
+    $address = $addresses->nextAddress();
+    $data["address"] = $address->getData();
+    $data["address"]["groups"] = $address->getGroups();
+    print_r($data["address"]["groups"]);
 
-    if($group_name) {
+    /*if($group_name) {
       $data["group_name"] = $group_name;
-    }
+    }*/
     
     $data["is_fix_group"] = $is_fix_group;
     $data["table_groups"] = $table_groups;
@@ -193,18 +206,16 @@ else if($id) {
       }
     }
   }
-  else if( !(isset($_POST['quickskip']) || isset($_POST['quickadd'])) 
-         && (isset($_GET['quickadd']) || isset($_POST['quickadd']) || $quickadd))
-  {
-    $data["quickadd"] = true;
-  }
   else {
     $data["editing_disabled"] = true;
   }
-
+}
+else if( !(isset($_POST['quickskip']) || isset($_POST['quickadd'])) 
+         && (isset($_GET['quickadd']) || isset($_POST['quickadd']) || $quickadd)) {
+  $data["action"] = "quickadd";
 }
 else {
-  $data["action"] = "id";
+  $data["action"] = "none";
   if(! $read_only) {
     if(isset($_POST['quickadd'])) {
       
@@ -214,8 +225,20 @@ else {
     } else {        
       $addr = array();        
     }
-    
     $data["address"] = $addr;
+    
+    $data["is_fix_group"] = $is_fix_group;
+    $data["table_groups"] = $table_groups;
+    
+    if(isset($table_groups) and $table_groups != "" and !$is_fix_group) {
+      $sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
+      $result_groups = mysql_query($sql);
+      $data["group_names"] = array();
+
+      while ($myrow = mysql_fetch_array($result_groups)) {
+          $data["group_names"][] = $myrow["group_name"];
+      }
+    }
   } 
   else {
     $data["editing_disabled"] = true;
@@ -224,5 +247,3 @@ else {
 
 header('Content-Type:text/html; charset=UTF-8');
 echo $twig->render('edit.html', $data);
-
-//include ("include/footer.inc.php"); ?>

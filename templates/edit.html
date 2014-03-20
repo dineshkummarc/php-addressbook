@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% if refresh %}
+{#{% if refresh %}
   {% block meta %}
     <meta HTTP-EQUIV="REFRESH" content="3;url=.">
   {% endblock %}
-{% endif %}
+{% endif %}#}
 
 {% if title %}
   {% block title %}
@@ -34,14 +34,18 @@
       <i>{% trans "return to" %} <a href='index.php'>home page</a></i>
     </div>
   {% endif %}
-{% elseif action == "id" %}
+{% elseif action == "id" or action == "none" %}
   <form name="theform"
         enctype="multipart/form-data" 
         accept-charset="utf-8"
         method="post"
         action="edit.php">
 
-    <input type="submit" name="update" value="{% trans 'UPDATE' %}" /><br />
+    {% if action == "id" %}
+      <input type="submit" name="update" value="{% trans 'UPDATE' %}" /><br />
+    {% else %}
+      <input type="submit" name="submit" value="{% trans 'ENTER' %}" /><br />
+    {% endif %}
 
     <input type="hidden" name="id" value="{{ address['id'] ? address['id'] }}" />
     <label>{% trans "FIRSTNAME" %}:</label>
@@ -155,11 +159,11 @@
 
     <label>{% trans "GROUP" %}:</label>
         {% if table_groups and not is_fix_group %}
-          <select name="new_group">
+          <select name="groups[]" size="4" multiple>
             {% for group in group_names %}
-              <option value="[{{group}}]"
-                {% if group_name == ("[" ~ group ~ "]") %}selected{% endif %}>
-                [{{group}}]
+              <option value="{{group}}"
+                {% if group in address["groups"] %}selected{% endif %}>
+                {{group}}
               </option>
             {% endfor %}
           </select>
@@ -177,62 +181,29 @@
 
     <label>{% trans "NOTES" %}:</label>
     <textarea name="notes" rows="5" cols="35">{{address["notes"]}}</textarea><br /><br />
-
-    <input type="submit" name="update" value="{% trans 'UPDATE' %}" />
+  
+    {% if action == "id" %}
+      <input type="submit" name="update" value="{% trans 'UPDATE' %}" /><br />
+    {% else %}
+      <input type="submit" name="submit" value="{% trans 'ENTER' %}" /><br />
+    {% endif %}
   </form>
   <form method="get" action="delete.php">
     <input type="hidden" name="id" value="{{address['id']}}" />
     <input type="submit" name="update" value="{% trans 'DELETE' %}" />
   </form>
-  {% if quickadd %}
-    <form accept-charset="utf-8" method="post" name="quickadd" >
-      <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/><br/>
+{% elseif action == "quickadd" %}
+  <form accept-charset="utf-8" method="post" name="quickadd" >
+    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/><br/>
 
-      <label>{% trans "ADDRESS" %}:</label>
-      <textarea name="address" rows="20" tabindex="0"></textarea><br/><br/>
-      <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/>
-    </form>
-    <script type="text/javascript">
-            document.quickadd.address.focus();
-    </script>
-  {% endif %}
-  
-{% endif %}
-
-
-
-{# {% if not editing_disabled %}
-  {% if table_groups and not is_fix_group %}
-    <label>{% trans 'GROUP' %}:</label>
-    <select name='new_group'>
-      <option value='[none]' {% if group_name == '[none]' %}selected{% endif %}>[{% trans 'NONE' %}]</option>
-      {% for group in group_names %}
-          <option value='[{{group}}]' 
-            {% if group_name == '[' ~ group ~ ']' %}selected{% endif %}>
-            [{{group}}]
-          </option>
-      {% endfor %}
-    </select>
-  {% endif %}
-  
-  <br />
-  <label><b>{% trans 'SECONDARY' %}</b></label><br /><br class='clear' />
-
-  <label>{% trans 'ADDRESS' %}:</label>
-  <textarea name='address2' rows='5' cols='35'></textarea><br />
-
-  <label>{% trans 'PHONE_HOME' %}:</label>
-  <input type='text' name='phone2'  value='{{address['phone2']}}' size='35' /><br />
-
-  <label>{% trans 'NOTES' %}:</label>
-  <textarea name='notes' rows='5' cols='35'></textarea><br /><br />
-
-  <input type='submit' name='submit' value='{% trans 'ENTER' %}' />
-  <!--</form>-->
-  <script type='text/javascript'>
-    document.theform.email.focus();
+    <label>{% trans "ADDRESS" %}:</label>
+    <textarea name="address" rows="20" tabindex="0"></textarea><br/><br/>
+    <input type="submit" name="quickadd"  value="{% trans 'NEXT' %}" /><br/>
+  </form>
+  <script type="text/javascript">
+    document.quickadd.address.focus();
   </script>
-{% endif %} #}
+{% endif %}
 
 {% if editing_disabled %}
   <br /><div class='msgbox'>{% trans "Editing is disabled." %}</div>

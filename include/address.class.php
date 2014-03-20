@@ -111,11 +111,31 @@ function saveAddress($addr_array, $group_name = "") {
     $result = mysql_query($sql);
     $rec = mysql_fetch_array($result);
     $id = $rec['max_id'];
+    
+    $sql = "SELECT DISTINCT $table_groups.group_name, $table_groups.group_id FROM $table_groups ";
+    $sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
+    $sql .= $addr_array["id"];
+    $result = mysql_query($sql);
+    $groups = array();
+    while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
+      $groups[$row["group_id"]] = $row["group_name"];
+    }
+    foreach($addr_array["groups"] as $group) {
+      if(!in_array($group, $groups)) {
+        $sql = "SELECT group_id FROM $table_groups WHERE group_name = '$group'";
+        $result = mysql_query($sql);
+        $row = mysql_fetch_array($result);
+        $group_id = $row["group_id"];
+      
+        $sql = "INSERT INTO $table_grp_adr VALUES ($domain_id, $id, $group_id, NOW(), NOW(), 0) ";
+        $result = mysql_query($sql);
+      }
+    }
 
-    if(!isset($addr_array['id']) && $group_name) {
+    /*if(!isset($addr_array['id']) && $group_name) {
     	$sql = "INSERT INTO $table_grp_adr SELECT $domain_id domain_id, $id id, group_id, now(), now(), NULL FROM $table_groups WHERE group_name = '$group_name'";
     	$result = mysql_query($sql);
-    }
+    }*/
     
     return $id;
 }
@@ -124,66 +144,85 @@ function updateAddress($addr, $keep_photo = true) {
 
   global $keep_history, $domain_id, $base_from_where, $table, $table_grp_adr, $table_groups;
 
-	$addresses = Addresses::withID($addr['id']);
-	$resultsnumber = $addresses->count();
+  $addresses = Addresses::withID($addr['id']);
+  $resultsnumber = $addresses->count();
 
-	$homepage = str_replace('http://', '', $addr['homepage']);
+  $homepage = str_replace('http://', '', $addr['homepage']);
 
-	$is_valid = $resultsnumber > 0;
+  $is_valid = $resultsnumber > 0;
 
-	if($is_valid)
-	{
-		if($keep_history) {
-		
-			// Get current photo, if "$keep_photo"
-			if($keep_photo) {
-		 	  $r = $addresses->nextAddress()->getData();
-		 	  $addr['photo'] = $r['photo'];
-			}
+  if($is_valid)
+  {
+    if($keep_history) {
+      // Get current photo, if "$keep_photo"
+      if($keep_photo) {
+        $r = $addresses->nextAddress()->getData();
+        $addr['photo'] = $r['photo'];
+      }
 
-	    $sql = "UPDATE $table
-	               SET deprecated = now()
-		           WHERE deprecated is null
-		             AND id	       = '".$addr['id']."'
-		             AND domain_id = '".$domain_id."';";
-    	$result = mysql_query($sql);
+      $sql = "UPDATE $table
+              SET deprecated = now()
+              WHERE deprecated is null
+              AND id = '".$addr['id']."'
+              AND domain_id = '".$domain_id."';";
+      $result = mysql_query($sql);
     	
-		  saveAddress($addr);
-		} else {
-	    $sql = "UPDATE $table SET firstname = '".$addr['firstname']."'
-	                            , lastname  = '".$addr['lastname']."'
-	                            , middlename  = '".$addr['middlename']."'
-	                            , nickname  = '".$addr['nickname']."'
-	                            , company   = '".$addr['company']."'
-	                            , title     = '".$addr['title']."'
-	                            , address   = '".$addr['address']."'
-	                            , home      = '".$addr['home']."'
-	                            , mobile    = '".$addr['mobile']."'
-	                            , work      = '".$addr['work']."'
-	                            , fax       = '".$addr['fax']."'
-	                            , email     = '".$addr['email']."'
-	                            , email2    = '".$addr['email2']."'
-	                            , email3    = '".$addr['email3']."'
-	                            , homepage  = '".$addr['homepage']."'
-	                            , aday      = '".$addr['aday']."'
-	                            , amonth    = '".$addr['amonth']."'
-	                            , ayear     = '".$addr['ayear']."'
-	                            , bday      = '".$addr['bday']."'
-	                            , bmonth    = '".$addr['bmonth']."'
-	                            , byear     = '".$addr['byear']."'
-	                            , address2  = '".$addr['address2']."'
-	                            , phone2    = '".$addr['phone2']."'
-	                            , notes     = '".$addr['notes']."'
-	    ".($keep_photo ? "" : ", photo     = '".$addr['photo']."'")."
-	                            , modified  = now()
-		                        WHERE id        = '".$addr['id']."'
-		                          AND domain_id = '$domain_id';";
-		  $result = mysql_query($sql);
+      saveAddress($addr);
+    } else {
+      $sql = "UPDATE $table SET firstname = '".$addr['firstname']."'
+                              , lastname  = '".$addr['lastname']."'
+                              , middlename  = '".$addr['middlename']."'
+                              , nickname  = '".$addr['nickname']."'
+                              , company   = '".$addr['company']."'
+                              , title     = '".$addr['title']."'
+                              , address   = '".$addr['address']."'
+                              , home      = '".$addr['home']."'
+                              , mobile    = '".$addr['mobile']."'
+                              , work      = '".$addr['work']."'
+                              , fax       = '".$addr['fax']."'
+                              , email     = '".$addr['email']."'
+                              , email2    = '".$addr['email2']."'
+                              , email3    = '".$addr['email3']."'
+                              , homepage  = '".$addr['homepage']."'
+                              , aday      = '".$addr['aday']."'
+                              , amonth    = '".$addr['amonth']."'
+                              , ayear     = '".$addr['ayear']."'
+                              , bday      = '".$addr['bday']."'
+                              , bmonth    = '".$addr['bmonth']."'
+                              , byear     = '".$addr['byear']."'
+                              , address2  = '".$addr['address2']."'
+                              , phone2    = '".$addr['phone2']."'
+                              , notes     = '".$addr['notes']."'
+        ".($keep_photo ? "" : ", photo     = '".$addr['photo']."'")."
+                              , modified  = now()
+                                WHERE id        = '".$addr['id']."'
+                                AND domain_id = '$domain_id';";
+      $result = mysql_query($sql);
+      
+      $sql = "SELECT DISTINCT $table_groups.group_name, $table_groups.group_id FROM $table_groups ";
+      $sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
+      $sql .= $addr_array["id"];
+      $result = mysql_query($sql);
+      $groups = array();
+      while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
+        $groups[$row["group_id"]] = $row["group_name"];
+      }
+      foreach($addr_array["groups"] as $group) {
+        if(!in_array($group, $groups)) {
+          $sql = "SELECT group_id FROM $table_groups WHERE group_name = '$group'";
+          $result = mysql_query($sql);
+          $row = mysql_fetch_array($result);
+          $group_id = $row["group_id"];
+        
+          $sql = "INSERT INTO $table_grp_adr VALUES ($domain_id, $id, $group_id, NOW(), NOW(), 0) ";
+          $result = mysql_query($sql);
+        }
+      }
     }
-		// header("Location: view?id=$id");
-    }
+    // header("Location: view?id=$id");
+  }
 
-	return $is_valid;
+  return $is_valid;
 }
 
 $phone_delims = array("'", '/', "-", " ", "(", ")", ".");
@@ -358,7 +397,7 @@ class Addresses {
      	return $replace." LIKE CONCAT('%',".$like.",'%')";    	
     }
 
-    protected function loadBy($load_type, $searchstring, $page, $limit, $alphabet = "") {
+    protected function loadBy($load_type, $searchstring, $page = 0, $limit = 0, $alphabet = "") {
 
       global $base_from_where, $table;
 
@@ -424,7 +463,7 @@ class Addresses {
 
     public static function withID( $id ) {
     	$instance = new self();
-    	$instance->loadBy('id', $id );
+    	$instance->loadBy('id', $id);
     	return $instance;
     }
 

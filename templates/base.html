@@ -80,13 +80,11 @@
   </div>
 </body>
 
-{% if use_ajax %}
 <script type="text/javascript">
 <!--
-  filterResults(document.getElementsByName("searchstring")[0]);
+  {% block js_commands %}{% endblock %}
 //-->
 </script>
-{% endif %}
 
 <!-- 
 Copyright Notice:

@@ -161,3 +161,9 @@
 } ?> #}
 
 {% endblock %}
+
+{% if use_ajax %}
+  {% block js_commands %}
+    filterResults(document.getElementsByName("searchstring")[0]);
+  {% endblock %}
+{% endif %}
