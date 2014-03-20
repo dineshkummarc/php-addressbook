@@ -132,14 +132,14 @@ class QuestionTranslator extends Translator {
 	function __construct() {
 		parent::__construct();
 		
-		$this->supported_langs = array("de", "en", "ar");
-    $this->setDefaultLang("de");
+		$this->supported_langs = array("de_DE", "en_GB", "ar");
+                $this->setDefaultLang("en_GB");
 	}
 	
 	// Just translate "address" (en) to "Adresse" (de).
 	function msg($msgid, $lang = "") {
 		if($msgid == "ADDRESS") {
-			if($this->getLang($lang) == "de") {
+			if($this->getLang($lang) == "de_DE") {
 			  return "Adresse";
 			} elseif($this->getLang($lang) == "ar") {
 			  return "عنوان";

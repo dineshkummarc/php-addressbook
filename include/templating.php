@@ -12,15 +12,42 @@ $twig = new Twig_Environment($loader, array(
     'debug' => true
 ));
 
+require_once("prefs.inc.php");
+require_once("translator.class.php");
+
+$trans = new GetTextTranslator();
+
+$default_lang    = $trans->getDefaultLang();
+$supported_langs = $trans->getSupportedLangs();
+$right_to_left_languages = array('ar', 'fa', 'he');
+
+//
+// Handle language choice
+//
+$choose_lang = false;
+if(getPref('lang') != NULL) {
+        $lang = getPref('lang');
+} else {
+  if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    $lang = $trans->getBestAcceptLang($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+  } else {
+        $lang = $trans->getBestAcceptLang(array());
+  }
+}
+$trans->setDefaultLang($lang);
+
 // set i18n
 $twig->addExtension(new Twig_Extensions_Extension_I18n());
-// Set language to German
-putenv('LC_ALL=de_DE'); 
-setlocale(LC_ALL, 'de_DE'); 
+// Set language
+//$lang = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+putenv('LC_ALL='.$lang); 
+setlocale(LC_ALL, $lang.'.utf8'); 
 // Specify location of translation tables
-bindtextdomain("php-addressbook-de", "translations"); 
+bindtextdomain("php-addressbook", "./translations/LOCALES");
+bind_textdomain_codeset('php-addressbook', 'UTF-8');
 // Choose domain 
-textdomain("php-addressbook-de");
+textdomain("php-addressbook");
+echo $lang;
   
 $data["skin_color"] = $skin_color;
 // Define default map guessing
