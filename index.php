@@ -1,7 +1,7 @@
 <?php
 
 // some includes
-require_once 'vendor/autoload.php';
+require_once '3rdparty/autoload.php';
 
 include ("include/dbconnect.php");
 //include ("include/format.inc.php");

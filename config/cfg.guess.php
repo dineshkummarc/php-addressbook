@@ -3,7 +3,7 @@
   // === enable/disable guessing options ==
 
   // List external phonebook providers
-  $default_provider = "+41";
+  $default_provider = "+49";
    
   // Guess homepage from e-mail, excluding the freemailers defined below
   $homepage_guess  = true;
@@ -12,7 +12,7 @@
   $map_guess  = true;
 
   // Pattern for PLZ guessing
-  $plz_pattern = "[0-9A-Z]{4,8}";
+  $plz_pattern = "[0-9]{5}";
 
   // === static lookup tables ==
 
