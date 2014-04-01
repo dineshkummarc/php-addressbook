@@ -47,7 +47,7 @@ bindtextdomain("php-addressbook", "./translations/LOCALES");
 bind_textdomain_codeset('php-addressbook', 'UTF-8');
 // Choose domain 
 textdomain("php-addressbook");
-echo $lang;
+//echo $lang;
   
 $data["skin_color"] = $skin_color;
 // Define default map guessing
@@ -101,5 +101,6 @@ $data["map_guess"] = $map_guess;
 
 $data["url_images"] = $url_images;
 
+$data["public_group_edit"] = $public_group_edit;
 $data["is_fix_group"] = $is_fix_group;
 $data["table_groups"] = $table_groups;

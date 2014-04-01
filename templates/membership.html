@@ -1,0 +1,51 @@
+{% extends "base.html" %} 
+
+{% from "index_cols.html" import addCol %}
+
+{% block title %}
+Membership | Address Book
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'MEMBERSHIP' %}</h1>
+
+{% if action == "save" %}
+  {% if saved %}
+    <br /><div class='msgbox'>Memberships have been updated.</div>
+  {% endif %}
+{% else %}
+  <form accept-charset="utf-8" name="MainForm" method="post" action="membership.php">
+    <div class='right'><input type='submit' name='save' value='{% trans "SAVE_MEMBERSHIPS" %}'/></div>
+    <div class="clear"></div>
+    
+    <table id="maintable" class="sortcompletecallback-applyZebra"><tr name="entry">
+      <tr>
+        <th class='sortable'>{% trans 'NAME' %}</th>
+        {% for group in group_names %}
+          <th class='sortable'>{{group}}</th>
+        {% endfor %}
+      </tr>
+      
+      {% for address in addresses %}
+        <tr class='{{ loop.index0 % 2 ? 'odd' }}' name='entry'>
+          <td>{{ addCol("first_last", address) }}</td>
+          {% for group in group_names %}
+            <td class='center'>
+              <input type='checkbox' id='{{address.data["id"]}}:{{group}}' name='selected[]' 
+                    value='{{address.data["id"]}}:{{group}}' title='Select ({{group}})' alt='Select ({{group}})'
+                    {{ group in address.groups ? 'checked' }}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+    <br/>
+    
+    <div class='right'><input type='submit' name='save' value='{% trans "SAVE_MEMBERSHIPS" %}'/></div>
+  </form>
+{% endif %}
+
+{% if editing_disabled %}
+  <br /><div class='msgbox'>Editing is disabled.<br /><i>return to the <a href='membership.php'>membership page</a></i></div>
+{% endif %}
+{% endblock %}

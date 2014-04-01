@@ -1,4 +1,7 @@
 {
+  "config": {
+    "vendor-dir": "3rdparty"
+  },
   "require": {
     "twig/twig": "1.*",
     "twig/extensions": "*"

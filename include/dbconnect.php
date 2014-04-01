@@ -67,7 +67,7 @@ foreach($get_vars as $get_var) {
 
 // Copy only used variables into global space.
 $get_vars = array( 'searchstring', 'alphabet', 'group', 'resultnumber'
-                 , 'submit', 'update', 'delete', 'part'
+                 , 'submit', 'update', 'delete', 'part', 'save'
                  , 'new', 'add', 'remove', 'edit', 'del_format', 'page', 'limit' );
 
 foreach($get_vars as $get_var) {

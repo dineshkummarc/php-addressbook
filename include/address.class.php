@@ -39,21 +39,21 @@ function deleteAddresses($part_sql) {
   $is_valid = $resultsnumber > 0; 
 
   if($is_valid) {
-  	if($keep_history) {
-  	  $sql = "UPDATE $table
-  	          SET deprecated = now()
-  	          WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
-  	  $sql = "UPDATE $table_grp_adr
-  	          SET deprecated = now()
-  	          WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
-  	} else {
-  	  $sql = "DELETE FROM $table_grp_adr WHERE ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
-  	  $sql = "DELETE FROM $table         WHERE ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
-    }
+    /*if($keep_history) {
+      $sql = "UPDATE $table
+              SET deprecated = now()
+              WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
+      mysql_query($sql);
+      $sql = "UPDATE $table_grp_adr
+              SET deprecated = now()
+              WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
+      mysql_query($sql);
+    } else {*/
+      $sql = "DELETE FROM $table_grp_adr WHERE ".$part_sql." AND domain_id = ".$domain_id;
+      mysql_query($sql);
+      $sql = "DELETE FROM $table         WHERE ".$part_sql." AND domain_id = ".$domain_id;
+        mysql_query($sql);
+    //}
   }
 
   return $is_valid;
@@ -153,7 +153,7 @@ function updateAddress($addr, $keep_photo = true) {
 
   if($is_valid)
   {
-    if($keep_history) {
+    /*if($keep_history) {
       // Get current photo, if "$keep_photo"
       if($keep_photo) {
         $r = $addresses->nextAddress()->getData();
@@ -168,7 +168,7 @@ function updateAddress($addr, $keep_photo = true) {
       $result = mysql_query($sql);
     	
       saveAddress($addr);
-    } else {
+    } else {*/
       $sql = "UPDATE $table SET firstname = '".$addr['firstname']."'
                               , lastname  = '".$addr['lastname']."'
                               , middlename  = '".$addr['middlename']."'
@@ -201,24 +201,24 @@ function updateAddress($addr, $keep_photo = true) {
       
       $sql = "SELECT DISTINCT $table_groups.group_name, $table_groups.group_id FROM $table_groups ";
       $sql .= "LEFT JOIN $table_grp_adr ON ($table_grp_adr.group_id = $table_groups.group_id) WHERE $table_grp_adr.id = ";
-      $sql .= $addr_array["id"];
+      $sql .= $addr["id"];
       $result = mysql_query($sql);
       $groups = array();
       while($row = mysql_fetch_array($result, MYSQL_BOTH)) {
         $groups[$row["group_id"]] = $row["group_name"];
       }
-      foreach($addr_array["groups"] as $group) {
+      foreach($addr["groups"] as $group) {
         if(!in_array($group, $groups)) {
           $sql = "SELECT group_id FROM $table_groups WHERE group_name = '$group'";
           $result = mysql_query($sql);
           $row = mysql_fetch_array($result);
           $group_id = $row["group_id"];
         
-          $sql = "INSERT INTO $table_grp_adr VALUES ($domain_id, $id, $group_id, NOW(), NOW(), 0) ";
+          $sql = "INSERT INTO $table_grp_adr VALUES ($domain_id, ".$addr['id'].", $group_id, NOW(), NOW(), 0) ";
           $result = mysql_query($sql);
         }
       }
-    }
+    //}
     // header("Location: view?id=$id");
   }
 
