@@ -98,9 +98,13 @@ $data["is_mobile"] = $is_mobile;
 $data["mailer"] = getMailer();
 
 $data["map_guess"] = $map_guess;
+$data["google_maps_keys"] = $google_maps_keys;
+if(isset($google_maps_key)) $data["google_maps_key"] = $google_maps_key;
 
 $data["url_images"] = $url_images;
 
 $data["public_group_edit"] = $public_group_edit;
 $data["is_fix_group"] = $is_fix_group;
 $data["table_groups"] = $table_groups;
+$data["userlist"] = $userlist;
+$data["username"] = $username;

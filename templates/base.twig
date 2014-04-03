@@ -21,6 +21,9 @@
   <!-- javascripts -->
   <script type="text/javascript" src="javascript/index.js"></script>
   <script type="text/javascript" src="3rdparty/js/tablesort.min.js"></script>
+  {% block js_includes %}{% endblock %}
+  
+  <script type="text/javascript">{% block js_commands_top %}{% endblock %}</script>
   
   <link rel="icon" type="image/png" href="{{url_images}}icons/font.png" />
   {% if rtl %}
@@ -37,13 +40,13 @@
   <title>{% block title %}{% trans "ADDRESS_BOOK" %}{% if group_name %} {{group_name}}{% endif %}:{% endblock %}</title>
 </head>
   
-<body>
+<body {% block body_parameters %}{% endblock %}>
   <div id="container">
     <div id="top">
       {% if userlist %}
         <form name="logout" method="post" class="header">
           <input type="hidden" name="logout" value="yes" />
-          {% if username %}<b>({{username}}</b> {% endif %}
+          {% if username %}<b>{{username}}</b> {% endif %}<br/>
           <a href="#" onClick="document.logout.submit();">{% trans "LOGOUT" %}</a>
         </form>
       {% else %}
@@ -82,7 +85,7 @@
 
 <script type="text/javascript">
 <!--
-  {% block js_commands %}{% endblock %}
+  {% block js_commands_bottom %}{% endblock %}
 //-->
 </script>
 

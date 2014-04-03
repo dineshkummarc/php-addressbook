@@ -1,0 +1,62 @@
+{% extends "base.twig" %} 
+
+{% block title %}
+{% trans 'ADDRESS_BOOK' %}
+{% endblock %}
+
+{% block js_includes %}
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key={{google_maps_key}}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body_parameters %}
+onload="initialize()" onunload="GUnload()"
+{% endblock %}
+
+{% block js_commands_top %}
+function initialize() {
+  if (GBrowserIsCompatible()) {
+    var map = new GMap2(document.getElementById("map_canvas"));
+    var bounds = new GLatLngBounds();
+
+    {# PHP-Thumbnails:
+     - http://icant.co.uk/articles/phpthumbnails/
+     #}
+    {% for i, coord in coords %}
+      {# Sample for the Thumbnail-Marker: http://www.schockwellenreiter.de/maps/tut03.html #}
+                
+      var point{{i}}  = new GLatLng({{coord['lati']}}, {{coord['long']}});
+      var marker{{i}} = new GMarker(point{{i}});
+      GEvent.addListener( marker{{i}}, "mouseover"
+                        , function() { marker{{i}}.openInfoWindowHtml("{{coord['bubble']}}");});
+      map.addOverlay(marker{{i}});
+      bounds.extend(point{{i}});
+    {% endfor %}
+                  
+    {#
+      Auto zoom around the markers
+      - Thanks to: http://imagine-it.org/google/debug_bounds.html
+    #}
+    
+    var clat = (bounds.getNorthEast().lat() + bounds.getSouthWest().lat()) /2;
+    var clng = (bounds.getNorthEast().lng() + bounds.getSouthWest().lng()) /2;
+    map.setCenter(new GLatLng(clat,clng));
+    
+    {% if coords|length == 1 %}
+      map.setZoom(9);
+    {% else %}
+      map.setZoom(map.getBoundsZoomLevel(bounds));
+    {% endif %}
+    
+    map.setUIToDefault();
+  }
+}
+{% endblock %}
+
+{% block content %}
+  {% if url_not_loading %}
+    url not loading
+  {% else %}
+    <br/><br/>
+    <div id="map_canvas" style="width: 800px; height: 600px"></div>
+  {% endif %}
+{% endblock %}

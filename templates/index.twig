@@ -163,7 +163,7 @@
 {% endblock %}
 
 {% if use_ajax %}
-  {% block js_commands %}
+  {% block js_commands_bottom %}
     filterResults(document.getElementsByName("searchstring")[0]);
   {% endblock %}
 {% endif %}
