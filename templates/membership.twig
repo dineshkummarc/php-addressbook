@@ -1,6 +1,6 @@
-{% extends "base.html" %} 
+{% extends "base.twig" %} 
 
-{% from "index_cols.html" import addCol %}
+{% from "index_cols.twig" import addCol %}
 
 {% block title %}
 Membership | Address Book
@@ -20,7 +20,7 @@ Membership | Address Book
     
     <table id="maintable" class="sortcompletecallback-applyZebra"><tr name="entry">
       <tr>
-        <th class='sortable'>{% trans 'NAME' %}</th>
+        <th class='sortable'>{% trans 'FIRST_LAST' %}</th>
         {% for group in group_names %}
           <th class='sortable'>{{group}}</th>
         {% endfor %}

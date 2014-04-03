@@ -10,7 +10,7 @@
 //
 abstract class Translator {
 	
-  protected $default_lang    = '';
+  protected $default_lang    = 'en';
   protected $supported_langs = array();
                         
   protected $right_to_left_languages 
@@ -23,50 +23,62 @@ abstract class Translator {
     $this->has_mb_strtoupper = function_exists('mb_strtoupper');
   }
 
-	function getSupportedLangs() {
-		return $this->supported_langs;
-	}
-	
-	function isSupportedLang($lang) {
-		return in_array($lang, $this->supported_langs);
-	}
-	
-	function getDefaultLang() {
-		return $this->default_lang;
-	}
-	
-	function setDefaultLang($lang) {
-		if($this->isSupportedLang($lang)) {
-		  return $this->default_lang = $lang;
-		}
-		return $this->default_lang;
-	}
-	
-	function getLangFromLocale($locale) {
-		return substr($accept_lang, 0, 2);
-	}
+  function getSupportedLangs() {
+    return array_keys($this->supported_langs);
+  }
+  
+  function isSupportedLang($lang) {
+    return /*in_array($lang, $this->supported_langs) && */array_key_exists($lang, $this->supported_langs);
+  }
+  
+  function getLocale($lang) {
+    if($this->isSupportedLang($lang)) {
+      return $this->supported_langs[$lang];
+    }
+    else {
+      return $this->supported_langs[$this->default_lang];
+    }
+  }
+  
+  function getLocales() {
+    return array_values($this->supported_langs);
+  }
+  
+  function getDefaultLang() {
+    return $this->default_lang;
+  }
+  
+  function setDefaultLang($lang) {
+    if($this->isSupportedLang($lang)) {
+      return $this->default_lang = $lang;
+    }
+    return $this->default_lang;
+  }
+  
+  function getLangFromLocale($locale) {
+    return substr($accept_lang, 0, 2);
+  }
 
   //
   // Find the best accepted languages:
   // - Usually from $_SERVER["HTTP_ACCEPT_LANGUAGE"]
   //
-	function getBestAcceptLang($accepted_languages) {
-		
+  function getBestAcceptLang($accepted_languages) {
     // Extract all available locales
-		$accept_languages = explode(',', strtolower($accepted_languages));
-		$accepted_languages = array();
+    $accept_languages = explode(',', strtolower($accepted_languages));
+    $accepted_languages = array();
 
     // Extract foreach locale the "affection"
     foreach($accept_languages as $accept_lang) {
-    	$lang_weight = explode("=", $accept_lang);
-    	$lang_weight = (isset($lang_weight[1]) && $lang_weight[1] != "" ? $lang_weight[1] : 1.0);
-    	$lang_name   = substr($accept_lang, 0, 2);
-    	
-    	// Memorize the highst acceptance for the language (e.g.: en_us=0.8,en_uk=0.6)
-    	if(   !isset($accepted_languages[$lang_name])
-    	   || $accepted_languages[$lang_name] < $lang_weight) {
-    	  $accepted_languages[$lang_name] = $lang_weight;
-    	}
+      $lang_weight = explode("=", $accept_lang);
+      $lang_weight = (isset($lang_weight[1]) && $lang_weight[1] != "" ? $lang_weight[1] : 1.0);
+      $lang_name   = substr($accept_lang, 0, 2);
+      
+      // Memorize the highst acceptance for the language (e.g.: en_us=0.8,en_uk=0.6)
+      if(   !isset($accepted_languages[$lang_name])
+          || $accepted_languages[$lang_name] < $lang_weight) {
+        $accepted_languages[$lang_name] = $lang_weight;
+      }
     }
     
     // Sort by priorities
@@ -74,26 +86,25 @@ abstract class Translator {
     
     // Return the best matching language
     foreach($accepted_languages as $curr_lang => $curr_weight) {
-      if(in_array($curr_lang, $this->getSupportedLangs())) {
+      if($this->isSupportedLang($curr_lang)) {
       	return $curr_lang;
       }
     }
     return $this->getDefaultLang();
-	}
+  }
 
-	function getLang($lang = "") {
-		if(in_array($lang, $this->getSupportedLangs())) {
-			return $lang;
-		}
-		return $this->getDefaultLang();
-	}
+  function getLang($lang = "") {
+    if(in_array($lang, $this->getSupportedLangs())) {
+            return $lang;
+    }
+    return $this->getDefaultLang();
+  }
 
-	function isRTL($lang = "") {
-		return in_array( $this->getLang($lang)
-		               , $this->right_to_left_languages);
-	}
+  function isRTL($lang = "") {
+    return in_array( $this->getLang($lang), $this->right_to_left_languages);
+  }
 
-	abstract function msg($msgid, $lang = "");
+  abstract function msg($msgid, $lang = "");
 
   //
   // Uppercase the first character with UTF-8 if possible,
@@ -167,30 +178,28 @@ T_bind_textdomain_codeset($domain, 'UTF-8');
 require_once('lib/gettext/gettext.inc');
 
 class GetTextTranslator extends Translator {
-	
-	protected $directory;
-	protected $domain    = 'php-addressbook';
+  protected $directory;
+  protected $domain    = 'php-addressbook';
 
-	function __construct() {
-		parent::__construct(); 
-		
-		$this->directory = dirname(__FILE__).'/../translations/LOCALES';		
+  function __construct() {
+    parent::__construct(); 
+    
+    $this->directory = dirname(__FILE__).'/../translations/LOCALES';		
 
     //
     // Read all supported languages from the directory
     //
-		$d = dir($this->directory);		
+    $d = dir($this->directory);		
     while (false !== ($entry = $d->read())) {
-       if(strlen($entry) == 2 && $entry != "..") {
-       	 $this->supported_langs[] = $entry;
-       }
+      if(strlen($entry) <= 6 && $entry != "..") {
+        $this->supported_langs[substr($entry,0,2)] = $entry;
+      }
     }
     $d->close();
   }
 
 
-	function msg($msgid, $lang = "") {
-
+  function msg($msgid, $lang = "") {
     T_setlocale(LC_ALL, $this->getLang($lang));
     T_bindtextdomain( $this->domain
                     , $this->directory);
@@ -198,7 +207,7 @@ class GetTextTranslator extends Translator {
     T_bind_textdomain_codeset($this->domain, 'UTF-8');
     
     if($msgid == "") {
-    	return "";
+        return "";
     } else {
       return T_gettext($msgid);
     }

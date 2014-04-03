@@ -246,4 +246,4 @@ else {
 }
 
 header('Content-Type:text/html; charset=UTF-8');
-echo $twig->render('edit.html', $data);
+echo $twig->render('edit.twig', $data);

@@ -118,4 +118,4 @@ else {
 }
 
 header('Content-Type:text/html; charset=UTF-8');
-echo $twig->render('membership.html', $data);
+echo $twig->render('membership.twig', $data);

@@ -1,7 +1,7 @@
-{% extends "base.html" %} 
+{% extends "base.twig" %} 
 
-{% from "index_cols.html" import addCol %}
-{% from "navigation.html" import pagination %}
+{% from "index_cols.twig" import addCol %}
+{% from "navigation.twig" import pagination %}
 
 {% block content %}
 {% if group_header %}{{group_header}}{% endif %}

@@ -59,4 +59,4 @@ if ($limit > 0 && $page > 1) $data["prev"] = $page - 1;
 if ($limit > 0 && $page < $data["last"]) $data["next"] = $page + 1;
 
 header('Content-Type:text/html; charset=UTF-8');
-echo $twig->render('index.html', $data);
+echo $twig->render('index.twig', $data);

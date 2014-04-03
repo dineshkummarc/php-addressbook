@@ -16,38 +16,38 @@ require_once("prefs.inc.php");
 require_once("translator.class.php");
 
 $trans = new GetTextTranslator();
-
-$default_lang    = $trans->getDefaultLang();
-$supported_langs = $trans->getSupportedLangs();
-$right_to_left_languages = array('ar', 'fa', 'he');
+//print_r($trans->getSupportedLangs());
+//print_r($trans->getLocales());
+//$default_lang    = $trans->getDefaultLang();
+//$supported_langs = $trans->getSupportedLangs();
+//$right_to_left_languages = array('ar', 'fa', 'he');
 
 //
 // Handle language choice
 //
 $choose_lang = false;
 if(getPref('lang') != NULL) {
-        $lang = getPref('lang');
+    $lang = getPref('lang');
 } else {
   if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     $lang = $trans->getBestAcceptLang($_SERVER['HTTP_ACCEPT_LANGUAGE']);
   } else {
-        $lang = $trans->getBestAcceptLang(array());
+    $lang = $trans->getDefaultLang(); //$trans->getBestAcceptLang(array());
   }
 }
-$trans->setDefaultLang($lang);
+$locale = $trans->getLocale($lang);
 
 // set i18n
 $twig->addExtension(new Twig_Extensions_Extension_I18n());
 // Set language
 //$lang = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-putenv('LC_ALL='.$lang); 
-setlocale(LC_ALL, $lang.'.utf8'); 
+putenv('LC_ALL='.$locale); 
+setlocale(LC_ALL, $locale.'.utf8'); 
 // Specify location of translation tables
 bindtextdomain("php-addressbook", "./translations/LOCALES");
 bind_textdomain_codeset('php-addressbook', 'UTF-8');
 // Choose domain 
 textdomain("php-addressbook");
-//echo $lang;
   
 $data["skin_color"] = $skin_color;
 // Define default map guessing
