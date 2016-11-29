@@ -15,6 +15,6 @@ done
 mysql -uroot -e "CREATE USER 'admin'@'%' IDENTIFIED BY 'admin'"
 mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION"
 mysql -uadmin -padmin -e "CREATE DATABASE addressbook"
-mysql -uadmin -padmin addressbook < /var/www/html/php-addressbook/addressbook.sql
+mysql -uadmin -padmin addressbook < /var/www/html/addressbook.sql
 
 /etc/init.d/apache2 start
