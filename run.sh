@@ -1,3 +1,5 @@
+#!/bin/sh
+
 echo "=> Installing MySQL ..."
 
 mysql_install_db
