@@ -4,8 +4,8 @@
   // == List of Login/Pass-Users ==
   //
   // -- Setup an "admin" user, with password "secret" --
-  $userlist['admin']['pass'] = "secret";
-  $userlist['admin']['role'] = "root"; // used to call "/diag.php"
+  $userlist['admin']['pass'] = "admin";
+  $userlist['admin']['role'] = "admin"; // used to call "/diag.php"
 
   //*  
   // -- Setup readonly-user for regression tests (yourdomain.com/addressbook/test/

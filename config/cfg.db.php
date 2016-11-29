@@ -2,9 +2,9 @@
   
   // Database access definition
   $dbserver     = "localhost"; // your database hostname
-  $dbname       = "test";      // your database name
-  $dbuser       = "root";      // your database username     
-  $dbpass       = "";          // your database password     
+  $dbname       = "addressbook";      // your database name
+  $dbuser       = "admin";      // your database username     
+  $dbpass       = "admin";          // your database password     
 
   // Read-Only user for increasd security (optional):
   // * GRANT SELECT ON $dbname.addressbook       TO $dbuser_read
