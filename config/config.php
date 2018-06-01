@@ -35,13 +35,13 @@
   $quickadd = true;
 
   // Don't display groups
-  $nogroups = false;
+  $nogroups = true;
 
   // Disable all "edit/create" actions
   $read_only  = false;
 
   // Enable group administration pages
-  $public_group_edit = true;
+  $public_group_edit = false;
 
   // Disable the AJAX-Mode with "false"
   $use_ajax = true;

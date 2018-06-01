@@ -221,9 +221,9 @@ mysqli_query($db,"SET NAMES `utf8`");
 mysqli_query($db,"SET SQL_MODE = 'STRICT_TRANS_TABLES';");
 mysqli_query($db,"SET SQL_MODE = 'MYSQL40';");
 
-include("login.inc.php");
+//include("login.inc.php");
 include("version.inc.php");
-
+/*
 // Apply the table prefix, if available
 $table         = $table_prefix.$table;
 $month_lookup  = $table_prefix.$month_lookup;
@@ -257,7 +257,7 @@ if(!$login->hasRoles($required_roles) ) {
   	$group_name   = $user->getGroup();
   };
 }
-
+*/
 if(isset($domain) && isset($domain[$domain_id]) && isset($domain[$domain_id]['skin'])) {
   $skin_color = $domain[$domain_id]['skin'];
 }
