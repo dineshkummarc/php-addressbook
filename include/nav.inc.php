@@ -28,6 +28,7 @@ if(!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
 	<li class="export">
       <a href="view<?php echo $page_ext_qry; ?>all&amp;print&amp;phones"><?php echo msg('PRINT_PHONES'); ?></a>
   </li>
+<!--
 <?php
 if(isset($google_maps_keys) || isset($google_maps_key)) { 
 ?>
@@ -37,6 +38,7 @@ if(isset($google_maps_keys) || isset($google_maps_key)) {
 <?php 
 }  
 ?>
+-->
 	<li class="export">
     	<a href="export<?php echo $page_ext; ?>"><?php echo msg('EXPORT'); ?></a>
   </li> 
