@@ -81,11 +81,11 @@ If($criteria_url==''){$criteria="id";}else{$criteria=$criteria_url;}
 
 $var = $_REQUEST['var'];
 
-$query = "select * from traffic WHERE `id` LIKE \"%$var%\" OR `site` LIKE \"%$var%\" OR `type` LIKE \"%$var%\" OR `date` LIKE \"%$var%\" OR `ip` LIKE \"%$var%\" OR `link` LIKE \"%$var%\" OR `page` LIKE \"%$var%\"order by `$criteria` desc"; 
+$sql = "select * from traffic WHERE `id` LIKE \"%$var%\" OR `site` LIKE \"%$var%\" OR `type` LIKE \"%$var%\" OR `date` LIKE \"%$var%\" OR `ip` LIKE \"%$var%\" OR `link` LIKE \"%$var%\" OR `page` LIKE \"%$var%\"order by `$criteria` desc"; 
 
 
- $numresults=mysql_query($query);
- $numrows=mysql_num_rows($numresults);
+ $numresults=mysqli_query($sql);
+ $numrows=mysqli_num_rows($numresults);
  
  echo"<font face='Arial, Helvetica, sans-serif' size='2' color='#000000'>Results: $numrows</font><hr>"; 
 
@@ -97,11 +97,11 @@ $query = "select * from traffic WHERE `id` LIKE \"%$var%\" OR `site` LIKE \"%$va
   $query .= " limit $s,$limit";
 
 // get results
-  $result = mysql_query($query) or die("Couldn't execute query");
+  $result = mysqli_query($query) or die("Couldn't execute query");
 
 
 // now you can display the results returned
-  while ($row= mysql_fetch_array($result)) {
+  while ($row= mysqli_fetch_array($result)) {
   
   $id= $row["id"];
   $ip= $row["ip"];
@@ -195,7 +195,7 @@ $a = $s + ($limit) ;
          VALUES ( '$date','$ip','$link','$notes','$site','$type' WHERE '$ip' != '69.254.101.167')";   
 		 		 
 		  // save the info to the database
-   $results = mysql_query( $query );
+   $results = mysqli_query( $query );
    
 ?>
 </body>

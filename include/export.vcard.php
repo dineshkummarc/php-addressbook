@@ -167,7 +167,9 @@ function address2vcard($links) {
 	 $result .= "EMAIL;INTERNET:$email3\n";
 	 $result .= "URL;WORK:$homepage\n";
 
+   // ToDo: Omit if empty
 	 $result .= "BDAY:"."$byear-".(strlen($bmonth_num) == 1?"0":"")."$bmonth_num-".(strlen($bday) == 1?"0":"")."$bday\n";
+   // ToDo: Omit if empty
 	 $result .= "X-ANNIVERSARY:"."$ayear-".(strlen($amonth_num) == 1?"0":"")."$amonth_num-".(strlen($aday) == 1?"0":"")."$aday\n";
 	 $result .= "END:VCARD\n";
 	 

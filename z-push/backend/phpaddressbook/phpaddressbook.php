@@ -6,7 +6,7 @@
 *               http://php-addressbook.sourceforge.net
 *
 * Created   :   16.07.2010
-* Updated   :   11.04.2016
+* Updated   :   10.03.2012
 * chatelao/ät/users.sourceforge.net
 *
 * Consult LICENSE file for details
@@ -127,17 +127,17 @@ class PhpAddr {
      // --- Connect to DB, retry 5 times ---
      for ($i = 0; $i < 5; $i++) {
 
-         $db = mysql_connect("$dbserver", "$dbuser", "$dbpass");
-         $errno = mysql_errno();
+         $db = mysqli_connect("$dbserver", "$dbuser", "$dbpass");
+         $errno = mysqli_errno();
          if ($errno == 1040 || $errno == 1226 || $errno == 1203) {
              sleep(1);
          }  else {
              break;
          }
      }
-     mysql_select_db("$dbname", $db);
-     mysql_query('set character set utf8;');
-     mysql_query("SET NAMES `utf8`");
+     mysqli_select_db("$dbname", $db);
+     mysqli_query($db, 'set character set utf8;');
+     mysqli_query($db, "SET NAMES `utf8`");
      
      return $db;
 
@@ -147,8 +147,8 @@ class PhpAddr {
 
   	global $db;
 
-    if(mysql_ping($db)) {
-     mysql_close($db);
+    if(mysqli_ping($db)) {
+     mysqli_close($db);
     }
     return true;
   }
@@ -373,8 +373,8 @@ class BackendPhpaddressbook extends BackendDiff {
 
         $sql = "SELECT id, modified FROM $base_from_where";
 
-        $result = mysql_query($sql);
-        while($rec = mysql_fetch_array($result)) {
+        $result = mysqli_query($db,$sql);
+        while($rec = mysqli_fetch_array($result)) {
             $message = array();
             $message["id"]  = $rec['id'];
             $message["mod"] = $rec["modified"];
@@ -424,8 +424,8 @@ class BackendPhpaddressbook extends BackendDiff {
         $message = new SyncContact();
 
         $sql = "SELECT * FROM $base_from_where AND id = ".intval($id);
-        $result = mysql_query($sql);
-        $addr = mysql_fetch_array($result);
+        $result = mysqli_query($db,$sql);
+        $addr = mysqli_fetch_array($result);
 
         if(isset($addr['email']))
             $message->email1address = $addr['email'];
@@ -542,12 +542,7 @@ class BackendPhpaddressbook extends BackendDiff {
 
         $message->body = $addr['notes'];
 
-        if(isset($addr['photo']) && strlen($addr['photo']) > 10) {
-        	$flat = str_replace("\n\t", "", $addr['photo']);
-        	$flat = str_replace(" ", "", $flat);
-        	$flat = explode(':', $flat, 2);
-          $message->picture = $flat[1];
-        } 
+        $message->picture = $addr['photo'];
         
         if(   isset($addr['bday'])   && $addr['bday']   != ""
            && isset($addr['bmonth']) && $addr['bmonth'] != ""
@@ -618,8 +613,8 @@ class BackendPhpaddressbook extends BackendDiff {
         $sql = "SELECT id, modified FROM $base_from_where AND id = ".intval($id);
 
 //2        $this->_phpaddr->connect();
-        $result = mysql_query($sql);
-        $rec = mysql_fetch_array($result);
+        $result = mysqli_query($db,$sql);
+        $rec = mysqli_fetch_array($result);
 //2        $this->_phpaddr->disconnect();
 
         $message = array();
@@ -665,13 +660,12 @@ class BackendPhpaddressbook extends BackendDiff {
      * @param string        $folderid       id of the folder
      * @param string        $id             id of the message
      * @param SyncXXX       $message        the SyncObject containing a message
-     * @param ContentParameters   $contentParameters
      *
      * @access public
      * @return array                        same return value as StatMessage()
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function ChangeMessage($folderid, $id, $message, $contentParameters) {
+    public function ChangeMessage($folderid, $id, $message) {
         ZLog::Write(LOGLEVEL_DEBUG, 'PhpAddr::ChangeMessage('.$folderid.', '.$id.', ..)');
 
         debugLog('PhpAddr::ChangeMessage(FolderID: '.$folderid.', ID: '.$id.', ..)'.json_encode($message));
@@ -829,31 +823,29 @@ class BackendPhpaddressbook extends BackendDiff {
     /**
      * Changes the 'read' flag of a message on disk
      *
-     * @param string              $folderid            id of the folder
-     * @param string              $id                  id of the message
-     * @param int                 $flags               read flag of the message
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the folder
+     * @param string        $id             id of the message
+     * @param int           $flags          read flag of the message
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function SetReadFlag($folderid, $id, $flags, $contentParameters) {
+    public function SetReadFlag($folderid, $id, $flags) {
         return false;
     }
 
     /**
      * Called when the user has requested to delete (really delete) a message
      *
-     * @param string              $folderid             id of the folder
-     * @param string              $id                   id of the message
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the folder
+     * @param string        $id             id of the message
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function DeleteMessage($folderid, $id, $contentParameters) {
+    public function DeleteMessage($folderid, $id) {
 
         debugLog('PhpAddr::DeleteMessage(FolderID: '.$folderid.', ID: '.$id.')');
 //2        $this->_phpaddr->connect();
@@ -867,16 +859,15 @@ class BackendPhpaddressbook extends BackendDiff {
      * Called when the user moves an item on the PDA from one folder to another
      * not implemented
      *
-     * @param string              $folderid            id of the source folder
-     * @param string              $id                  id of the message
-     * @param string              $newfolderid         id of the destination folder
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the source folder
+     * @param string        $id             id of the message
+     * @param string        $newfolderid    id of the destination folder
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_MOVEITEMSSTATUS_* exceptions
      */
-    public function MoveMessage($folderid, $id, $newfolderid, $contentParameters) {
+    public function MoveMessage($folderid, $id, $newfolderid) {
         return false;
     }
 

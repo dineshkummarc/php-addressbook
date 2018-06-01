@@ -32,7 +32,7 @@ include"auth_check_header.php";
 			  
 			  $query = "DELETE FROM `users` WHERE `id`='$id'";
 
-$result = mysql_query( $query );
+$result = mysqli_query( $query );
 
 // print out the results
 if( $result )
@@ -41,7 +41,7 @@ echo( "<font face='Verdana, Arial, Helvetica, sans-serif' size='2' color='#00000
 }
 else
 {
-die( "Error: Could not delete entry: " . mysql_error() );
+die( "Error: Could not delete entry: " . mysqli_error() );
 }
 
 			  

@@ -16,11 +16,11 @@ $sql="SELECT * FROM users WHERE username='$username_from_cookie' AND permissions
 
 }
 
-$result=mysql_query($sql);
+$result=mysqli_query($db,$sql);
 
-// Mysql_num_row is counting table rows
+// mysqli_num_row is counting table rows
 
-$count=mysql_num_rows($result);
+$count=mysqli_num_rows($result);
 
 // If result matches $myusername and $mypassword, table row must be 1 row
 
@@ -36,14 +36,14 @@ header("location:login.php");
 
 $query = "SELECT * FROM users WHERE `username`='$username_from_cookie'"; 
 
-$numresults=mysql_query($query);
-$numrows=mysql_num_rows($numresults); 
+$numresults=mysqli_query($db, $query);
+$numrows=mysqli_num_rows($numresults); 
 
 // get results
-$result = mysql_query($query) or die("Couldn't execute query");
+$result = mysqli_query($query) or die("Couldn't execute query");
 
 // now you can display the results returned
-while ($row= mysql_fetch_array($result)) {
+while ($row= mysqli_fetch_array($result)) {
 
 $permissions= $row["permissions"];
 

@@ -19,8 +19,8 @@
 	   if(isset($part_sql)) {
 	     $sql .= " AND ".$part_sql;
 	   }
-	   $result = mysql_query($sql);
-     while($address = mysql_fetch_array($result)) {
+	   $result = mysqli_query($db,$sql);
+     while($address = mysqli_fetch_array($result)) {
      	 $vcfname = $address['firstname'].(isset($address['middlename']) ? "_".$address['middlename']:"")."_".$address['lastname']."-".$address['id'].".vcf";
        $vcfname = str_replace(" ","_",$vcfname);  // middlename may contain spaces, for example "van der" in Dutch
      	 setlocale(LC_ALL, 'en_US.UTF8');
@@ -39,8 +39,8 @@
      require "include/export.vcard.php";
 
     $sql = "SELECT * FROM $month_from_where";
-     $result = mysql_query($sql);
-     while($links  = mysql_fetch_array($result)) {
+     $result = mysqli_query($db,$sql);
+     while($links  = mysqli_fetch_array($result)) {
         echo address2vcard($links);
      }
   } elseif(isset($_REQUEST['type']) && $_REQUEST['type'] == "xls-Nokia") {  	

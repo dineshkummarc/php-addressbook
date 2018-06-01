@@ -4,11 +4,11 @@ include"master_inc.php";
 
 $sql="SELECT * FROM users WHERE username='$username_from_cookie'";
 
-$result=mysql_query($sql);
+$result=mysqli_query($db,$sql);
 
-// Mysql_num_row is counting table rows
+// mysqli_num_row is counting table rows
 
-$count=mysql_num_rows($result);
+$count=mysqli_num_rows($result);
 
 //echo "count: $count<br>";
 

@@ -6,16 +6,16 @@ $username_from_cookie = $_COOKIE[$cookiename]; //retrieve contents of cookie
 
 //Query to get permissions
 
-$query = "SELECT * FROM users WHERE `username` = '$username_from_cookie'"; 
+$sql = "SELECT * FROM users WHERE `username` = '$username_from_cookie'"; 
 
-$numresults=mysql_query($query);
-$numrows=mysql_num_rows($numresults); 
+$numresults = mysqli_query($sql);
+$numrows = mysqli_num_rows($numresults); 
 
 // get results
-$result = mysql_query($query) or die("Couldn't execute query");
+$result = mysqli_query($query) or die("Couldn't execute query");
 
 // now you can display the results returned
-while ($row= mysql_fetch_array($result)) {
+while ($row= mysqli_fetch_array($result)) {
 
 $permissions = $row["permissions"];
 

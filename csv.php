@@ -45,8 +45,8 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
                           WHERE addr_addressbook.domain_id = 0 AND addr_addressbook.deprecated is null   ORDER BY lastname, firstname ASC
 */	
 
-	$result = mysql_query($sql);
-	$resultsnumber = mysql_numrows($result);	
+	$result = mysqli_query($db,$sql);
+	$resultsnumber = mysqli_num_rows($result);	
 
   // Header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
   Header("Content-Type: application/vnd.ms-excel");
@@ -88,7 +88,7 @@ SELECT addr_addressbook.*, b_month_lookup .bmonth_num, amonth_num amonth_num FRO
   else
 	  echo "\r\n";
 
-	while ($myrow = mysql_fetch_array($result))
+	while ($myrow = mysqli_fetch_array($result))
 	{
 
 		# Name + Geburtstag

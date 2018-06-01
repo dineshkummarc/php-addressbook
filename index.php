@@ -49,7 +49,7 @@ echo "<div id='a-z'><a href='$link=a'>A</a> | <a href='$link=b'>B</a> | <a href=
 
   $addresses = Addresses::withSearchString($searchstring, $alphabet);
   $result = $addresses->getResults();
-	$resultsnumber = mysql_numrows($result);
+	$resultsnumber = mysqli_num_rows($result);
 	
 	// TBD:  Pagination
 	// http://php.about.com/od/phpwithmysql/ss/php_pagination.htm
@@ -69,10 +69,10 @@ if(isset($table_groups) and $table_groups != "" and !$is_fix_group) { ?>
 		<option value="[none]">[<?php echo msg("NONE"); ?>]</option>
 		<?php
 			$sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
-			$result_groups = mysql_query($sql);
-			$result_gropup_snumber = mysql_numrows($result_groups);
+			$result_groups = mysqli_query($db,$sql);
+			$result_gropup_snumber = mysqli_num_rows($result_groups);
 	
-			while ($myrow = mysql_fetch_array($result_groups))
+			while ($myrow = mysqli_fetch_array($result_groups))
 			{
 			echo "<option>".$myrow["group_name"]."</option>\n";
 			}
@@ -287,10 +287,10 @@ function addRow($row) {
       echo "<select name='to_group'>";
     
 	  	$sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
-	  	$result = mysql_query($sql);
-	  	$resultsnumber = mysql_numrows($result);
+	  	$result = mysqli_query($db,$sql);
+	  	$resultsnumber = mysqli_num_rows($result);
 	  
-	  	while ($myrow = mysql_fetch_array($result))
+	  	while ($myrow = mysqli_fetch_array($result))
 	  	{
 	  		echo "<option>".$myrow["group_name"]."</option>\n";
 	  	}

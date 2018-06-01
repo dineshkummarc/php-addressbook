@@ -16,7 +16,7 @@
 *
 * Created   :   02.01.2012
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2012 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
@@ -84,11 +84,6 @@ abstract class BackendDiff extends Backend {
      */
     public function Setup($store, $checkACLonly = false, $folderid = false) {
         $this->store = $store;
-
-        // we don't know if and how diff backends implement the "admin" check, but this will disable it for the webservice
-        // backends which want to implement this, need to overwrite this method explicitely. For more info see https://jira.zarafa.com/browse/ZP-462
-        if ($store == "SYSTEM" && $checkACLonly == true)
-            return false;
 
         return true;
     }
@@ -310,16 +305,15 @@ abstract class BackendDiff extends Backend {
      * This method will never be called on E-mail items as it's not 'possible' to change e-mail items. It's only
      * possible to set them as 'read' or 'unread'.
      *
-     * @param string              $folderid            id of the folder
-     * @param string              $id                  id of the message
-     * @param SyncXXX             $message             the SyncObject containing a message
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the folder
+     * @param string        $id             id of the message
+     * @param SyncXXX       $message        the SyncObject containing a message
      *
      * @access public
      * @return array                        same return value as StatMessage()
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function ChangeMessage($folderid, $id, $message, $contentParameters);
+    public abstract function ChangeMessage($folderid, $id, $message);
 
     /**
      * Changes the 'read' flag of a message on disk. The $flags
@@ -329,16 +323,15 @@ abstract class BackendDiff extends Backend {
      * change 'mod', simply setting the message to 'read' on the mobile will trigger
      * a full resync of the item from the server.
      *
-     * @param string              $folderid            id of the folder
-     * @param string              $id                  id of the message
-     * @param int                 $flags               read flag of the message
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the folder
+     * @param string        $id             id of the message
+     * @param int           $flags          read flag of the message
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function SetReadFlag($folderid, $id, $flags, $contentParameters);
+    public abstract function SetReadFlag($folderid, $id, $flags);
 
     /**
      * Called when the user has requested to delete (really delete) a message. Usually
@@ -347,15 +340,14 @@ abstract class BackendDiff extends Backend {
      * as it will be seen as a 'new' item. This means that if this method is not implemented, it's possible to
      * delete messages on the PDA, but as soon as a sync is done, the item will be resynched to the mobile
      *
-     * @param string              $folderid             id of the folder
-     * @param string              $id                   id of the message
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the folder
+     * @param string        $id             id of the message
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function DeleteMessage($folderid, $id, $contentParameters);
+    public abstract function DeleteMessage($folderid, $id);
 
     /**
      * Called when the user moves an item on the PDA from one folder to another. Whatever is needed
@@ -363,16 +355,15 @@ abstract class BackendDiff extends Backend {
      * should show the items to have a new parent. This means that it will disappear from GetMessageList()
      * of the sourcefolder and the destination folder will show the new message
      *
-     * @param string              $folderid            id of the source folder
-     * @param string              $id                  id of the message
-     * @param string              $newfolderid         id of the destination folder
-     * @param ContentParameters   $contentParameters
+     * @param string        $folderid       id of the source folder
+     * @param string        $id             id of the message
+     * @param string        $newfolderid    id of the destination folder
      *
      * @access public
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_MOVEITEMSSTATUS_* exceptions
      */
-    public abstract function MoveMessage($folderid, $id, $newfolderid, $contentParameters);
+    public abstract function MoveMessage($folderid, $id, $newfolderid);
 
 }
 ?>

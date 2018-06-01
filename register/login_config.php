@@ -58,25 +58,25 @@ $email_4_pw_email = trim($_REQUEST['email']);
 if($email_4_pw_email !==''){
 
    // connect to the server
-   mysql_connect( $db_host, $db_username, $db_password )
-      or die( "Error! Could not connect to database: " . mysql_error() );
+   mysqli_connect( $db_host, $db_username, $db_password )
+      or die( "Error! Could not connect to database: " . mysqli_error() );
    
    // select the database
-   mysql_select_db( $db )
-      or die( "Error! Could not select the database: " . mysql_error() );
+   mysqli_select_db( $db )
+      or die( "Error! Could not select the database: " . mysqli_error() );
 
 //The following Query Gets password from database for email if called for 
 
-$query = "SELECT * FROM ".$usertable." WHERE email = '".mysql_real_escape_string(trim($email_4_pw_email))."'"; 
+$query = "SELECT * FROM ".$usertable." WHERE email = '".mysqli_real_escape_string(trim($email_4_pw_email))."'"; 
 
-$numresults = mysql_query($query);
-$numrows    = mysql_num_rows($numresults); 
+$numresults = mysqli_query($query);
+$numrows    = mysqli_num_rows($numresults); 
 
 // get results
-$result = mysql_query($query) or die("Couldn't execute query");
+$result = mysqli_query($query) or die("Couldn't execute query");
 
 // now you can display the results returned
-while ($row= mysql_fetch_array($result)) {
+while ($row= mysqli_fetch_array($result)) {
 
 $email         = $row["email"];
 $password      = $row["password"];

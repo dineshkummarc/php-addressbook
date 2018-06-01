@@ -31,7 +31,7 @@
   $coords = array();
 
   //  foreach($addresses as $address) {
-  while($myrow = mysql_fetch_array($result)) {
+  while($myrow = mysqli_fetch_array($result)) {
 
     $coord['addr']   = trim(str_replace("\n", ", ", trim($myrow['address'])),",");
     $coord['html']    = "<b>".$myrow['firstname'].(isset($myrow['middlename']) ? " ".$myrow['middlename'] : "")." ".$myrow['lastname']."</b><br>";
@@ -67,14 +67,14 @@
                   WHERE id        = '".$myrow['id']."'
                     AND domain_id = '$domain_id'
                     AND deprecated is null;";
-        $upd_result = mysql_query($sql);
+        $upd_result = mysqli_query($db,$sql);
 		  } else {
         $sql = "UPDATE $table 
                    SET addr_status = '".$coord['status']."'
                   WHERE id        = '".$myrow['id']."'
                     AND domain_id = '$domain_id'
                     AND deprecated is null;";
-        $upd_result = mysql_query($sql);
+        $upd_result = mysqli_query($db,$sql);
 		  }          
 		}
 		$coords[] = $coord;

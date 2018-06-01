@@ -42,10 +42,10 @@ for ($i = 0; $i < 5; $i++) {
 	
     $level = error_reporting();
     error_reporting(E_ERROR);
-    $db = mysql_connect("$dbserver", "$dbuser", "$dbpass");
+    $db = mysqli_connect("$dbserver", "$dbuser", "$dbpass");
     error_reporting($level);
     
-    $errno = mysql_errno();
+    $errno = mysqli_errno($db);
     if ($errno == 1040 || $errno == 1226 || $errno == 1203) {
         sleep(1);
     }  else {
@@ -72,9 +72,9 @@ $get_vars = array( 'searchstring', 'alphabet', 'group', 'resultnumber'
 
 foreach($get_vars as $get_var) {
    if(isset($_GET[$get_var])) {
-     ${$get_var} = mysql_real_escape_string($_GET[$get_var], $db);
+     ${$get_var} = mysqli_real_escape_string($db, $_GET[$get_var]);
    } elseif(isset($_POST[$get_var])) {
-     ${$get_var} = mysql_real_escape_string($_POST[$get_var], $db);
+     ${$get_var} = mysqli_real_escape_string($db, $_POST[$get_var]);
    } else {
      ${$get_var} = null;
    }
@@ -208,18 +208,18 @@ include("mailer.inc.php");
 if(!$db) {
 	include "include/install.php";
 }
-mysql_select_db("$dbname", $db);  
+mysqli_select_db($db, "$dbname");  
 //
 // Setup the UTF-8 parameters:
 // * http://www.phpforum.de/forum/showthread.php?t=217877#PHP
 //
 // header('Content-type: text/html; charset=utf-8');
-mysql_query("set character set utf8;");
-mysql_query("SET NAMES `utf8`");
+mysqli_query($db, "set character set utf8;");
+mysqli_query($db,"SET NAMES `utf8`");
 
 // Bug: #139 - Strict mode problem
-mysql_query("SET SQL_MODE = 'STRICT_TRANS_TABLES';");
-mysql_query("SET SQL_MODE = 'MYSQL40';");
+mysqli_query($db,"SET SQL_MODE = 'STRICT_TRANS_TABLES';");
+mysqli_query($db,"SET SQL_MODE = 'MYSQL40';");
 
 include("login.inc.php");
 include("version.inc.php");

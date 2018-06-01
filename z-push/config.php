@@ -6,7 +6,7 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2010 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
@@ -53,22 +53,9 @@
     // Try to set unlimited timeout
     define('SCRIPT_TIMEOUT', 0);
 
-    // When accessing through a proxy, the "X-Forwarded-For" header contains the original remote IP
-    define('USE_X_FORWARDED_FOR_HEADER', false);
+    //Max size of attachments to display inline. Default is 2 MB
+    define('MAX_EMBEDDED_SIZE', 2097152);
 
-    // When using client certificates, we can check if the login sent matches the owner of the certificate.
-    // This setting specifies the owner parameter in the certificate to look at.
-    define("CERTIFICATE_OWNER_PARAMETER", "SSL_CLIENT_S_DN_CN");
-
-    /*
-     * Whether to use the complete email address as a login name
-     * (e.g. user@company.com) or the username only (user).
-     * This is required for Z-Push to work properly after autodiscover.
-     * Possible values:
-     * false - use the username only (default).
-     * true - use the complete email address.
-     */
-    define('USE_FULLEMAIL_FOR_LOGIN', false);
 
 /**********************************************************************************
  *  Include the php-addressbook config.php
@@ -88,20 +75,6 @@
 
 /**********************************************************************************
  *  Logging settings
- *  Possible LOGLEVEL and LOGUSERLEVEL values are:
- *  LOGLEVEL_OFF            - no logging
- *  LOGLEVEL_FATAL          - log only critical errors
- *  LOGLEVEL_ERROR          - logs events which might require corrective actions
- *  LOGLEVEL_WARN           - might lead to an error or require corrective actions in the future
- *  LOGLEVEL_INFO           - usually completed actions
- *  LOGLEVEL_DEBUG          - debugging information, typically only meaningful to developers
- *  LOGLEVEL_WBXML          - also prints the WBXML sent to/from the device
- *  LOGLEVEL_DEVICEID       - also prints the device id for every log entry
- *  LOGLEVEL_WBXMLSTACK     - also prints the contents of WBXML stack
- *
- *  The verbosity increases from top to bottom. More verbose levels include less verbose
- *  ones, e.g. setting to LOGLEVEL_DEBUG will also output LOGLEVEL_FATAL, LOGLEVEL_ERROR,
- *  LOGLEVEL_WARN and LOGLEVEL_INFO level entries.
  */
     define('LOGFILEDIR', $zpush_logs_dir);
     define('LOGFILE', LOGFILEDIR . 'z-push.log');
@@ -112,14 +85,9 @@
 
     // To save e.g. WBXML data only for selected users, add the usernames to the array
     // The data will be saved into a dedicated file per user in the LOGFILEDIR
-    // Users have to be encapusulated in quotes, several users are comma separated, like:
-    //   $specialLogUsers = array('info@domain.com', 'myusername');
     define('LOGUSERLEVEL', $zpush_log_users_level);
     $specialLogUsers = $zpush_log_users;
 
-    // Location of the trusted CA, e.g. '/etc/ssl/certs/EmailCA.pem'
-    // Uncomment and modify the following line if the validation of the certificates fails.
-    // define('CAINFO', '/etc/ssl/certs/EmailCA.pem');
 
 /**********************************************************************************
  *  Mobile settings
@@ -155,14 +123,8 @@
     // a higher value if you have a high load on the server.
     define('PING_INTERVAL', 30);
 
-    // Interval in seconds to force a re-check of potentially missed notifications when
-    // using a changes sink. Default are 300 seconds (every 5 min).
-    // This can also be disabled by setting it to false
-    define('SINK_FORCERECHECK', 300);
 
-    // Set the fileas (save as) order for contacts in the webaccess/webapp/outlook.
-    // It will only affect new/modified contacts on the mobile which then are synced to the server.
-    // Possible values are:
+    // Set the fileas order contacts. Possible values are:
     // SYNC_FILEAS_FIRSTLAST    - fileas will be "Firstname Middlename Lastname"
     // SYNC_FILEAS_LASTFIRST    - fileas will be "Lastname, Firstname Middlename"
     // SYNC_FILEAS_COMPANYONLY  - fileas will be "Company"
@@ -175,7 +137,7 @@
     // to SYNC_FILEAS_FIRSTLAST or SYNC_FILEAS_LASTFIRST (depending on if last or first
     // option is selected for company).
     // If SYNC_FILEAS_COMPANYONLY is selected and company of the contact is not set
-    // SYNC_FILEAS_LASTFIRST will be used
+    // SYNC_FILEAS_FIRSTLAST will be used
     define('FILEAS_ORDER', SYNC_FILEAS_FIRSTLAST);
 
 /**********************************************************************************
@@ -273,46 +235,7 @@ if(true || $group_name == "") {
     }
  }
 $domain_id = 0;
-    // Amount of items to be synchronized per request
-    // Normally this value is requested by the mobile. Common values are 5, 25, 50 or 100.
-    // Exporting too much items can cause mobile timeout on busy systems.
-    // Z-Push will use the lowest value, either set here or by the mobile.
-    // default: 100 - value used if mobile does not limit amount of items
-    define('SYNC_MAX_ITEMS', 100);
 
-    // The devices usually send a list of supported properties for calendar and contact
-    // items. If a device does not includes such a supported property in Sync request,
-    // it means the property's value will be deleted on the server.
-    // However some devices do not send a list of supported properties. It is then impossible
-    // to tell if a property was deleted or it was not set at all if it does not appear in Sync.
-    // This parameter defines Z-Push behaviour during Sync if a device does not issue a list with
-    // supported properties.
-    // See also https://jira.zarafa.com/browse/ZP-302.
-    // Possible values:
-    // false - do not unset properties which are not sent during Sync (default)
-    // true  - unset properties which are not sent during Sync
-    define('UNSET_UNDEFINED_PROPERTIES', false);
-
-    // ActiveSync specifies that a contact photo may not exceed 48 KB. This value is checked
-    // in the semantic sanity checks and contacts with larger photos are not synchronized.
-    // This limitation is not being followed by the ActiveSync clients which set much bigger
-    // contact photos. You can override the default value of the max photo size.
-    // default: 5242880 - 5 MB default max photo size in bytes
-    define('SYNC_CONTACTS_MAXPICTURESIZE', 5242880);
-
-    // Over the WebserviceUsers command it is possible to retrieve a list of all
-    // known devices and users on this Z-Push system. The authenticated user needs to have
-    // admin rights and a public folder must exist.
-    // In multicompany environments this enable an admin user of any company to retrieve
-    // this full list, so this feature is disabled by default. Enable with care.
-    define('ALLOW_WEBSERVICE_USERS_ACCESS', false);
-
-    // Users with many folders can use the 'partial foldersync' feature, where the server
-    // actively stops processing the folder list if it takes too long. Other requests are
-    // then redirected to the FolderSync to synchronize the remaining items.
-    // Device compatibility for this procedure is not fully understood.
-    // NOTE: THIS IS AN EXPERIMENTAL FEATURE WHICH COULD PREVENT YOUR MOBILES FROM SYNCHRONIZING.
-    define('USE_PARTIAL_FOLDERSYNC', false);
 
 /**********************************************************************************
  *  Search provider settings

@@ -75,7 +75,7 @@ function guessAddressFields($address) {
 	$address = preg_replace("/==(=)*/", "", $address);
   //
   // Preprocess:
-  // * Revert "mysql_real_escape"
+  // * Revert "mysqli_real_escape"
   // * Split into block (newline, pipe, colon)
   // * Remove whitespaces & empty lines
   //  

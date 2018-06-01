@@ -29,7 +29,7 @@ function sanitize_paranoid_string($string, $min='', $max='')
          VALUES ( '$date','$ip','$link','$notes','$site','$type')";   
 		 		 
 		  // save the info to the database
-   $results = mysql_query( $query );
+   $results = mysqli_query( $query );
 
 $url = str_replace("316AMPERSAND316","&","$link");
 

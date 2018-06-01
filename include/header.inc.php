@@ -28,8 +28,8 @@
 <?php 
 	if($group_name != "") {  
 		$sql="SELECT * FROM $table_groups WHERE group_name = '$group_name'";
-		$result = mysql_query($sql);
-		$group_myrow = mysql_fetch_array($result);
+		$result = mysqli_query($db,$sql);
+		$group_myrow = mysqli_fetch_array($result);
 		echo $group_myrow['group_header'];
 	}
 ?>

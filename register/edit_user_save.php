@@ -48,7 +48,7 @@ $query = "UPDATE `users` SET
 WHERE `id`='$id'";
 
 // save the info to the database
-$results = mysql_query( $query );
+$results = mysqli_query( $query );
 
 // print out the results
 if( $results )
@@ -57,7 +57,7 @@ if( $results )
 }
 else
 {
-die( "Trouble saving information to the database: " . mysql_error() );
+die( "Trouble saving information to the database: " . mysqli_error() );
 }
 
 

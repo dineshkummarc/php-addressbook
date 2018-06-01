@@ -12,8 +12,8 @@ $username = strip_tags(substr($_POST['email'],0,32));
 if(trim($username)!=='' || strlen(trim($username)) >= 4){
    //email unique?
    $sql    = "SELECT * FROM ".$usertable." WHERE username='$username'";
-   $result = mysql_query($sql);
-   $count  = mysql_num_rows($result);
+   $result = mysqli_query($db, $sql);
+   $count  = mysqli_num_rows($result);
    if($count>0){
       $username_already_in_use = 104;
    }
@@ -32,8 +32,8 @@ if(preg_match('/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@([a-z0-9-]{2,3})+(\.[a-z0-9-]+)*(\.
 
 if($require_email_unique) {
   $sql="SELECT * FROM ".$usertable." WHERE email='$email'";
-  $result=mysql_query($sql);
-  $count=mysql_num_rows($result);
+  $result=mysqli_query($db, $sql);
+  $count=mysqli_num_rows($result);
   if($count>0){
   $email_already_in_use=104;
   }
@@ -61,19 +61,19 @@ die();
 
 //Encrypt Password
 $encrypted_pw = md5($pw_clean);
-$query = "INSERT INTO ".$usertable."
+$sql = "INSERT INTO ".$usertable."
 (domain_id, username, md5_pass, lastname, firstname, email, phone, password_hint) 
 select max(domain_id)+1 domain_id
-     , '".mysql_real_escape_string($username)."'      username     
-     , '".mysql_real_escape_string($encrypted_pw)."'  md5_pass
-     , '".mysql_real_escape_string($lastname)."'      lastname
-     , '".mysql_real_escape_string($firstname)."'     firstname
-     , '".mysql_real_escape_string($email)."'         email
-     , '".mysql_real_escape_string($phone)."'         phone  
-     , '".mysql_real_escape_string($password_hint)."' password_hint from ".$usertable.";";
+     , '".mysqli_real_escape_string($username)."'      username     
+     , '".mysqli_real_escape_string($encrypted_pw)."'  md5_pass
+     , '".mysqli_real_escape_string($lastname)."'      lastname
+     , '".mysqli_real_escape_string($firstname)."'     firstname
+     , '".mysqli_real_escape_string($email)."'         email
+     , '".mysqli_real_escape_string($phone)."'         phone  
+     , '".mysqli_real_escape_string($password_hint)."' password_hint from ".$usertable.";";
      
 // save the info to the database
-$results = mysql_query( $query );
+$results = mysqli_query( $sql );
 // print out the results
 if( $results ) {
   //
@@ -93,24 +93,24 @@ if( $results ) {
 }
 else
 {
-die( "Trouble saving information to the database: " . mysql_error() );
+die( "Trouble saving information to the database: " . mysqli_error() );
 }
 //email unique?
 $sql="SELECT * FROM ".$usertable."";
-$result=mysql_query($sql);
-$count=mysql_num_rows($result);
+$result=mysqli_query($db, $sql);
+$count=mysqli_num_rows($result);
 if($count==1){
 
-$query = "UPDATE `users` SET `permissions`='5' WHERE `email`='$email'"; 
+$sql = "UPDATE `users` SET `permissions`='5' WHERE `email`='$email'"; 
 // save the info to the database
-$results = mysql_query( $query );
+$results = mysqli_query( $sql );
 // print out the results
 if( $results )
 { echo( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'><br><br>Since this is the first user in the database we have configured the account with administrative privileges. Subsequent changes to permission levels can be made in the database. Thank you.<br></font> " );
 }
 else
 {
-die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font> " . mysql_error() );
+die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font> " . mysqli_error() );
 }
 
 }

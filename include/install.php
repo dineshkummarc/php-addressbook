@@ -21,15 +21,15 @@ if(   isset($_POST['db_host'])
    //
    $level = error_reporting();
    error_reporting(E_ERROR);
-   $db = mysql_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass']);
+   $db = mysqli_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass']);
    error_reporting($level);
    if($db) {
    	 // Write valid values to "cfg.db.php"
      file_put_contents("config/cfg.db.php", $cfg);
    } else {
-   	 continue;
+   	 contine;
    }
-   mysql_select_db($_POST['db_name'], $db);  
+   mysqli_select_db($db, $_POST['db_name']);  
 
    $sql_ddl_arr = file("addressbook.sql");
    
@@ -51,7 +51,7 @@ if(   isset($_POST['db_host'])
    $sql_ddl_arr = explode(";", $sql_ddl);
    
    foreach($sql_ddl_arr as $sql) {
-   	 mysql_query($sql);
+   	 mysqli_query($db,$sql);
    };
    
    // Keep the variables for the first run :-)

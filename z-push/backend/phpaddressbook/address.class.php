@@ -3,7 +3,7 @@
 function getIfSetFromAddr($addr_array, $key) {
 
 	if(isset($addr_array[$key])) {
-	  // $result = mysql_real_escape_string($addr_array[$key]);
+	  // $result = mysqli_real_escape_string($addr_array[$key]);
 	  $result = $addr_array[$key];
 	} else {
 		$result = "";
@@ -29,8 +29,8 @@ function deleteAddresses($part_sql) {
   global $keep_history, $domain_id, $base_from_where, $table, $table_grp_adr, $table_groups;
 
   $sql = "SELECT * FROM $base_from_where AND ".$part_sql;
-  $result = mysql_query($sql);
-  $resultsnumber = mysql_numrows($result);
+  $result = mysqli_query($db,$sql);
+  $resultsnumber = mysqli_num_rows($result);
 
   $is_valid = $resultsnumber > 0;
 
@@ -39,16 +39,16 @@ function deleteAddresses($part_sql) {
   	  $sql = "UPDATE $table
   	          SET deprecated = now()
   	          WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
+  	  mysqli_query($db,$sql);
   	  $sql = "UPDATE $table_grp_adr
   	          SET deprecated = now()
   	          WHERE deprecated is null AND ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
+  	  mysqli_query($db,$sql);
   	} else {
   	  $sql = "DELETE FROM $table_grp_adr WHERE ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
+  	  mysqli_query($db,$sql);
   	  $sql = "DELETE FROM $table         WHERE ".$part_sql." AND domain_id = ".$domain_id;
-  	  mysql_query($sql);
+  	  mysqli_query($db,$sql);
     }
   }
 
@@ -96,16 +96,16 @@ function saveAddress($addr_array, $group_name = "") {
                                , '".getIfSetFromAddr($addr_array, 'notes')."'     notes
                                , now(), now()
                             FROM ".$src_tbl;
-    $result = mysql_query($sql);
+    $result = mysqli_query($db,$sql);
 
     $sql = "SELECT max(id) max_id from $table";
-    $result = mysql_query($sql);
-    $rec = mysql_fetch_array($result);
+    $result = mysqli_query($db,$sql);
+    $rec = mysqli_fetch_array($result);
     $id = $rec['max_id'];
 
     if(!isset($addr_array['id']) && $group_name) {
     	$sql = "INSERT INTO $table_grp_adr SELECT $domain_id domain_id, $id id, group_id, now(), now(), NULL FROM $table_groups WHERE group_name = '$group_name'";
-    	$result = mysql_query($sql);
+    	$result = mysqli_query($db,$sql);
     }
     
     return $id;
@@ -137,7 +137,7 @@ function updateAddress($addr, $keep_photo = true) {
 		           WHERE deprecated is null
 		             AND id	       = '".$addr['id']."'
 		             AND domain_id = '".$domain_id."';";
-    	$result = mysql_query($sql);
+    	$result = mysqli_query($db,$sql);
     	
 		  saveAddress($addr);
 		} else {
@@ -168,7 +168,7 @@ function updateAddress($addr, $keep_photo = true) {
 	                            , modified  = now()
 		                        WHERE id        = '".$addr['id']."'
 		                          AND domain_id = '$domain_id';";
-		  $result = mysql_query($sql);
+		  $result = mysqli_query($db,$sql);
     }
 		// header("Location: view?id=$id");
     }
@@ -287,8 +287,8 @@ class Addresses {
     	$replace = $row;
     	$like    = "'$searchword'";
      	foreach($phone_delims as $phone_delim) {
-    	  $replace = "replace(".$replace.", '".mysql_real_escape_string($phone_delim)."','')"; 
-    	  $like    = "replace(".$like.   ", '".mysql_real_escape_string($phone_delim)."','')"; 
+    	  $replace = "replace(".$replace.", '".mysqli_real_escape_string($phone_delim)."','')"; 
+    	  $like    = "replace(".$like.   ", '".mysqli_real_escape_string($phone_delim)."','')"; 
      	}     	
      	return $replace." LIKE CONCAT('%',".$like.",'%')";    	
     }
@@ -345,12 +345,12 @@ class Addresses {
       //     $sql .= " LIMIT ".($page-1)*$pagesize.",".$pagesize;
       // }
       //
-      $this->result = mysql_query($sql);
+      $this->result = mysqli_query($db,$sql);
     }
 
     public function nextAddress() {
 
-    	$myrow = mysql_fetch_array($this->result);
+    	$myrow = mysqli_fetch_array($this->result);
     	if($myrow) {
 		      return new Address(trimAll($myrow));
 		  } else {
@@ -363,7 +363,7 @@ class Addresses {
     }
     
     public function count() {
-    	return mysql_numrows($this->getResults());
+    	return mysqli_num_rows($this->getResults());
     }
 }
 ?>

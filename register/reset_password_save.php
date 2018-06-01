@@ -19,7 +19,7 @@ $cleanpw = md5($pw);
 $query = "UPDATE `users` SET `password`='$cleanpw', `password_hint`='$password_hint' WHERE `email`='$email'"; 
 
 // save the info to the database
-$results = mysql_query( $query );
+$results = mysqli_query( $query );
 
 // print out the results
 if( $results )
@@ -28,7 +28,7 @@ if( $results )
 }
 else
 {
-die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font> " . mysql_error() );
+die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font> " . mysqli_error() );
 }
 
 }

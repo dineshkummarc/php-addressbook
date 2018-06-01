@@ -1,11 +1,11 @@
 PHP Address Book
 ================
 
-in the folder _howto, find the "_USER_GUIDE.pdf" for further information about:
+Read "_USER_GUIDE.pdf" for further informations about:
 * Installations
 * Upgrades
 * User setup
-* Smartphone integration
+* Smart Phone integration
 * Export / Import
 * Language support
 * ... and much more
@@ -13,4 +13,28 @@ in the folder _howto, find the "_USER_GUIDE.pdf" for further information about:
 ENJOY !!
 
 
-(c)AGPL by chatelao 2007-2015
+(c)AGPL by chatelao 2007-2012
+
+Silk icon set 1.3
+
+_________________________________________
+Mark James
+http://www.famfamfam.com/lab/icons/silk/
+http://www.famfamfam.com/lab/icons/flags/
+_________________________________________
+
+This work is licensed under a
+Creative Commons Attribution 2.5 License.
+[ http://creativecommons.org/licenses/by/2.5/ ]
+
+This means you may use it for any purpose,
+and make any changes you like.
+All I ask is that you include a link back
+to this page in your credits.
+
+Are you using this icon set? Send me an email
+(including a link or picture if available) to
+mjames@gmail.com
+
+Any other questions about this icon set please
+contact mjames@gmail.com

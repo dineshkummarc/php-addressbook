@@ -25,8 +25,8 @@
 <?php
  $tbls = array($table, $month_lookup, $table_groups, $table_grp_adr);
  $sql = "select * from information_schema.tables where table_name in ('".implode("', '", $tbls)."');";
- $result = mysql_query($sql);
- $resultsnumber = mysql_num_rows($result);
+ $result = mysqli_query($db,$sql);
+ $resultsnumber = mysqli_num_rows($result);
  ?>
 		<td><b>Tables</b><br><?php echo $sql;?></td>
 		<td><?php echo count($tbls); ?></td>
@@ -37,8 +37,8 @@
 <?php
  $tbls = array($table, $month_lookup, $table_groups, $table_grp_adr);
  $sql = "select * from information_schema.tables where table_name in ('".implode("', '", $tbls)."');";
- $result = mysql_query($sql);
- $resultsnumber = mysql_num_rows($result);
+ $result = mysqli_query($db,$sql);
+ $resultsnumber = mysqli_num_rows($result);
  ?>
 
 <hr>
@@ -47,8 +47,8 @@
 	<tr><th>ID</th><th>Name</th><th>Count</th></tr>
 <?php	
  $sql = "select count(*) cnt, domain_id from $table where deprecated is null group by domain_id order by cnt desc";
- $result = mysql_query($sql);
- while ($myrow = mysql_fetch_array($result))
+ $result = mysqli_query($db,$sql);
+ while ($myrow = mysqli_fetch_array($result))
  {
    echo "<tr><td>".$myrow['domain_id']."</td>"
            ."<td>".$domain[$myrow['domain_id']]['name']."</td>"

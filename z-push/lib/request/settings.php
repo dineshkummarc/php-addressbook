@@ -6,7 +6,7 @@
 *
 * Created   :   16.02.2012
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2012 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
@@ -121,7 +121,6 @@ class Settings extends RequestProcessor {
                     case SYNC_SETTINGS_DEVICEINFORMATION:
                         $deviceinformation = new SyncDeviceInformation();
                         $deviceinformation->Decode(self::$decoder);
-                        $deviceinformation->Status = SYNC_SETTINGSSTATUS_SUCCESS;
                         self::$deviceManager->SaveDeviceInformation($deviceinformation);
                         break;
 
@@ -217,9 +216,11 @@ class Settings extends RequestProcessor {
             //set device information
             if (isset($deviceinformation)) {
                 self::$encoder->startTag(SYNC_SETTINGS_DEVICEINFORMATION);
-                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                    self::$encoder->content($deviceinformation->Status);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+                    self::$encoder->startTag(SYNC_SETTINGS_SET);
+                        self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                        self::$encoder->content($deviceinformation->Status);
+                        self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+                    self::$encoder->endTag(); //SYNC_SETTINGS_SET
                 self::$encoder->endTag(); //SYNC_SETTINGS_DEVICEINFORMATION
             }
 

@@ -3,11 +3,11 @@
 include "master_inc.php";
 
 $email  = $_REQUEST['email'];
-$sql    = "SELECT * FROM ".$usertable." WHERE email='".mysql_real_escape_string(trim($email))."'";
-$result = mysql_query($sql);
+$sql    = "SELECT * FROM ".$usertable." WHERE email='".mysqli_real_escape_string(trim($email))."'";
+$result = mysqli_query($db,$sql);
 
-// Mysql_num_row is counting table rows
-$count  = mysql_num_rows($result);
+// mysqli_num_row is counting table rows
+$count  = mysqli_num_rows($result);
 
 // If result matches $myusername and $mypassword, table row must be 1 row
 if($count == 0){

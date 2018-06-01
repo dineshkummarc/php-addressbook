@@ -7,7 +7,7 @@
  *              Z-Push implements the FileStateMachine which
  *              saves states to disk.
  *              Backends provide their own IStateMachine
- *              implementation of this interface and return
+                implementation of this interface and return
  *              an IStateMachine instance with IBackend->GetStateMachine().
  *              Old sync states are not deleted until a new sync state
  *              is requested.
@@ -18,7 +18,7 @@
 *
 * Created   :   02.01.2012
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2012 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
@@ -60,9 +60,6 @@ interface IStateMachine {
     const FAILSAVE = "fs";
     const HIERARCHY = "hc";
     const BACKENDSTORAGE = "bs";
-
-    const STATEVERSION_01 = "1";    // Z-Push 2.0.x - default value if unset
-    const STATEVERSION_02 = "2";    // Z-Push 2.1.0 Milestone 1
 
     /**
      * Constructor
@@ -141,7 +138,7 @@ interface IStateMachine {
      * @param string    $devid
      *
      * @access public
-     * @return boolean     indicating if the user was added or not (existed already)
+     * @return array
      */
     public function LinkUserDevice($username, $devid);
 
@@ -152,7 +149,7 @@ interface IStateMachine {
      * @param string    $devid
      *
      * @access public
-     * @return boolean
+     * @return array
      */
     public function UnLinkUserDevice($username, $devid);
 
@@ -166,34 +163,6 @@ interface IStateMachine {
      * @return array
      */
     public function GetAllDevices($username = false);
-
-    /**
-     * Returns the current version of the state files
-     *
-     * @access public
-     * @return int
-     */
-    public function GetStateVersion();
-
-    /**
-     * Sets the current version of the state files
-     *
-     * @param int       $version            the new supported version
-     *
-     * @access public
-     * @return boolean
-     */
-    public function SetStateVersion($version);
-
-    /**
-     * Returns all available states for a device id
-     *
-     * @param string    $devid              the device id
-     *
-     * @access public
-     * @return array(mixed)
-     */
-    public function GetAllStatesForDevice($devid);
 }
 
 ?>

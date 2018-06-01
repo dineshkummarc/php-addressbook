@@ -6,7 +6,7 @@
 *
 * Created   :   16.02.2012
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2012 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
@@ -57,189 +57,152 @@ class ItemOperations extends RequestProcessor {
         if(!self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_ITEMOPERATIONS))
             return false;
 
-        $itemoperations = array();
+        //TODO check if multiple item operations are possible in one request
+        $el = self::$decoder->getElement();
+
+        if($el[EN_TYPE] != EN_TYPE_STARTTAG)
+            return false;
         //ItemOperations can either be Fetch, EmptyFolderContents or Move
-        while (1) {
-            //TODO check if multiple item operations are possible in one request
-            $el = self::$decoder->getElement();
+        $fetch = $efc = $move = false;
+        if($el[EN_TAG] == SYNC_ITEMOPERATIONS_FETCH) {
+            $fetch = true;
+            self::$topCollector->AnnounceInformation("Fetch", true);
+        }
+        else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
+            $efc = true;
+            self::$topCollector->AnnounceInformation("Empty Folder", true);
+        }
+        else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_MOVE) {
+            $move = true;
+            self::$topCollector->AnnounceInformation("Move", true);
+        }
 
-            if($el[EN_TYPE] != EN_TYPE_STARTTAG)
+        if(!$fetch && !$efc && !$move) {
+            ZLog::Write(LOGLEVEL_DEBUG, "Unknown item operation:".print_r($el, 1));
+            self::$topCollector->AnnounceInformation("Unknown operation", true);
+            return false;
+        }
+
+        if ($fetch) {
+            if(!self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_STORE))
                 return false;
+            $store = self::$decoder->getElementContent();
+            if(!self::$decoder->getElementEndTag())
+                return false;//SYNC_ITEMOPERATIONS_STORE
 
-            $fetch = $efc = $move = false;
-            $operation = array();
-            if($el[EN_TAG] == SYNC_ITEMOPERATIONS_FETCH) {
-                $fetch = true;
-                $operation['operation'] = SYNC_ITEMOPERATIONS_FETCH;
-                self::$topCollector->AnnounceInformation("Fetch", true);
-            }
-            else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
-                $efc = true;
-                $operation['operation'] = SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS;
-                self::$topCollector->AnnounceInformation("Empty Folder", true);
-            }
-            else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_MOVE) {
-                $move = true;
-                $operation['operation'] = SYNC_ITEMOPERATIONS_MOVE;
-                self::$topCollector->AnnounceInformation("Move", true);
+            if(self::$decoder->getElementStartTag(SYNC_SEARCH_LONGID)) {
+                $longid = self::$decoder->getElementContent();
+                if(!self::$decoder->getElementEndTag())
+                    return false;//SYNC_SEARCH_LONGID
             }
 
-            if(!$fetch && !$efc && !$move) {
-                ZLog::Write(LOGLEVEL_DEBUG, "Unknown item operation:".print_r($el, 1));
-                self::$topCollector->AnnounceInformation("Unknown operation", true);
-                return false;
+            if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
+                $folderid = self::$decoder->getElementContent();
+                if(!self::$decoder->getElementEndTag())
+                    return false;//SYNC_FOLDERID
             }
 
-            // process operation
-            while(1) {
-                if ($fetch) {
-                    if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_STORE)) {
-                        $operation['store'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_ITEMOPERATIONS_STORE
-                    }
+            if(self::$decoder->getElementStartTag(SYNC_SERVERENTRYID)) {
+                $serverid = self::$decoder->getElementContent();
+                if(!self::$decoder->getElementEndTag())
+                    return false;//SYNC_SERVERENTRYID
+            }
 
-                    if(self::$decoder->getElementStartTag(SYNC_SEARCH_LONGID)) {
-                        $operation['longid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_SEARCH_LONGID
-                    }
+            if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_FILEREFERENCE)) {
+                $filereference = self::$decoder->getElementContent();
+                if(!self::$decoder->getElementEndTag())
+                    return false;//SYNC_AIRSYNCBASE_FILEREFERENCE
+            }
 
-                    if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
-                        $operation['folderid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_FOLDERID
-                    }
+            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) {
+                //TODO other options
+                //schema
+                //range
+                //username
+                //password
+                //bodypartpreference
+                //rm:RightsManagementSupport
 
-                    if(self::$decoder->getElementStartTag(SYNC_SERVERENTRYID)) {
-                        $operation['serverid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_SERVERENTRYID
-                    }
-
-                    if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_FILEREFERENCE)) {
-                        $operation['filereference'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_AIRSYNCBASE_FILEREFERENCE
-                    }
-
-                    if(($el = self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) && ($el[EN_FLAGS] & EN_FLAGS_CONTENT)) {
-                        //TODO other options
-                        //schema
-                        //range
-                        //username
-                        //password
-                        //bodypartpreference
-                        //rm:RightsManagementSupport
-
-                        // Save all OPTIONS into a ContentParameters object
-                        $operation["cpo"] = new ContentParameters();
-                        while(1) {
-                            while (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_BODYPREFERENCE)) {
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TYPE)) {
-                                    $bptype = self::$decoder->getElementContent();
-                                    $operation["cpo"]->BodyPreference($bptype);
-                                    if(!self::$decoder->getElementEndTag()) {
-                                        return false;
-                                    }
-                                }
-
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TRUNCATIONSIZE)) {
-                                    $operation["cpo"]->BodyPreference($bptype)->SetTruncationSize(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
-                                        return false;
-                                }
-
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_ALLORNONE)) {
-                                    $operation["cpo"]->BodyPreference($bptype)->SetAllOrNone(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
-                                        return false;
-                                }
-
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_PREVIEW)) {
-                                    $operation["cpo"]->BodyPreference($bptype)->SetPreview(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
-                                        return false;
-                                }
-
-                                if(!self::$decoder->getElementEndTag())
-                                    return false;//SYNC_AIRSYNCBASE_BODYPREFERENCE
-                            }
-
-                            if(self::$decoder->getElementStartTag(SYNC_MIMESUPPORT)) {
-                                $operation["cpo"]->SetMimeSupport(self::$decoder->getElementContent());
-                                if(!self::$decoder->getElementEndTag())
-                                    return false;
-                            }
-
-                            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_RANGE)) {
-                                $operation["range"] = self::$decoder->getElementContent();
-                                if(!self::$decoder->getElementEndTag())
-                                    return false;
-                            }
-
-                            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_SCHEMA)) {
-                                // read schema tags
-                                while (1) {
-                                    // TODO save elements
-                                    $el = self::$decoder->getElement();
-                                    $e = self::$decoder->peek();
-                                    if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
-                                        self::$decoder->getElementEndTag();
-                                        break;
-                                    }
-                                }
-                            }
-
-                            //break if it reached the endtag
-                            $e = self::$decoder->peek();
-                            if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
-                                self::$decoder->getElementEndTag();
-                                break;
+                // Save all OPTIONS into a ContentParameters object
+                $collection["cpo"] = new ContentParameters();
+                while(1) {
+                    while (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_BODYPREFERENCE)) {
+                        if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TYPE)) {
+                            $bptype = self::$decoder->getElementContent();
+                            $collection["cpo"]->BodyPreference($bptype);
+                            if(!self::$decoder->getElementEndTag()) {
+                                return false;
                             }
                         }
-                    }
-                } // end if fetch
 
-                if ($efc) {
-                    if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
-                        $operation['folderid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
-                            return false;//SYNC_FOLDERID
-                    }
-                    if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) {
-                        if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_DELETESUBFOLDERS)) {
-                            $operation['deletesubfolders'] = true;
-                            if (($dsf = self::$decoder->getElementContent()) !== false) {
-                                $operation['deletesubfolders'] = (bool)$dsf;
-                                if(!self::$decoder->getElementEndTag())
-                                    return false;
-                            }
+                        if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TRUNCATIONSIZE)) {
+                            $collection["cpo"]->BodyPreference($bptype)->SetTruncationSize(self::$decoder->getElementContent());
+                            if(!self::$decoder->getElementEndTag())
+                                return false;
                         }
+
+                        if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_ALLORNONE)) {
+                            $collection["cpo"]->BodyPreference($bptype)->SetAllOrNone(self::$decoder->getElementContent());
+                            if(!self::$decoder->getElementEndTag())
+                                return false;
+                        }
+
+                        if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_PREVIEW)) {
+                            $collection["cpo"]->BodyPreference($bptype)->SetPreview(self::$decoder->getElementContent());
+                            if(!self::$decoder->getElementEndTag())
+                                return false;
+                        }
+
+                        if(!self::$decoder->getElementEndTag())
+                            return false;//SYNC_AIRSYNCBASE_BODYPREFERENCE
+                    }
+
+                    if(self::$decoder->getElementStartTag(SYNC_MIMESUPPORT)) {
+                        $collection["cpo"]->SetMimeSupport(self::$decoder->getElementContent());
+                        if(!self::$decoder->getElementEndTag())
+                            return false;
+                    }
+
+                    //break if it reached the endtag
+                    $e = self::$decoder->peek();
+                    if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                         self::$decoder->getElementEndTag();
+                        break;
                     }
                 }
-
-                //TODO move
-
-                //break if it reached the endtag SYNC_ITEMOPERATIONS_FETCH or SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS or SYNC_ITEMOPERATIONS_MOVE
-                $e = self::$decoder->peek();
-                if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
-                    self::$decoder->getElementEndTag();
-                    break;
-                }
-            } // end while operation
-
-            $itemoperations[] = $operation;
-            //break if it reached the endtag
-            $e = self::$decoder->peek();
-            if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
-                self::$decoder->getElementEndTag(); //SYNC_ITEMOPERATIONS_ITEMOPERATIONS
-                break;
             }
-        } // end operations loop
+        }
+
+        if ($efc) {
+            if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
+                $folderid = self::$decoder->getElementContent();
+                if(!self::$decoder->getElementEndTag())
+                    return false;//SYNC_FOLDERID
+            }
+            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) {
+                if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_DELETESUBFOLDERS)) {
+                    $deletesubfolders = true;
+                    if (($dsf = self::$decoder->getElementContent()) !== false) {
+                        $deletesubfolders = (boolean)$dsf;
+                        if(!self::$decoder->getElementEndTag())
+                            return false;
+                    }
+                }
+                self::$decoder->getElementEndTag();
+            }
+        }
+
+        //TODO EmptyFolderContents
+        //TODO move
+
+        if(!self::$decoder->getElementEndTag())
+            return false; //SYNC_ITEMOPERATIONS_FETCH or SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS or SYNC_ITEMOPERATIONS_MOVE
+
+        if(!self::$decoder->getElementEndTag())
+            return false;//SYNC_ITEMOPERATIONS_ITEMOPERATIONS
 
         $status = SYNC_ITEMOPERATIONSSTATUS_SUCCESS;
+        //TODO status handling
 
         self::$encoder->startWBXML();
 
@@ -249,135 +212,109 @@ class ItemOperations extends RequestProcessor {
         self::$encoder->content($status);
         self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
 
-        // Stop here if something went wrong
-        if ($status != SYNC_ITEMOPERATIONSSTATUS_SUCCESS) {
-            self::$encoder->endTag();//SYNC_ITEMOPERATIONS_ITEMOPERATIONS
-            return true;
-        }
-
         self::$encoder->startTag(SYNC_ITEMOPERATIONS_RESPONSE);
 
-        foreach ($itemoperations as $operation) {
-            // fetch response
-            if ($operation['operation'] == SYNC_ITEMOPERATIONS_FETCH) {
+        // fetch response
+        if ($fetch) {
+            self::$encoder->startTag(SYNC_ITEMOPERATIONS_FETCH);
 
-                $status = SYNC_ITEMOPERATIONSSTATUS_SUCCESS;
+                self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
+                self::$encoder->content($status);
+                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
 
-                // retrieve the data
-                // Fetch throws Sync status codes, - GetAttachmentData ItemOperations codes
-                if (isset($operation['filereference'])) {
-                    try {
-                        self::$topCollector->AnnounceInformation("Get attachment data from backend with file reference");
-                        $data = self::$backend->GetAttachmentData($operation['filereference']);
-                    }
-                    catch (StatusException $stex) {
-                        $status = $stex->getCode();
-                    }
+                if (isset($folderid) && isset($serverid)) {
+                    self::$encoder->startTag(SYNC_FOLDERID);
+                    self::$encoder->content($folderid);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
 
-                }
-                else {
-                    try {
-                        if (isset($operation['folderid']) && isset($operation['serverid'])) {
-                            self::$topCollector->AnnounceInformation("Fetching data from backend with item and folder id");
-                            $data = self::$backend->Fetch($operation['folderid'], $operation['serverid'], $operation["cpo"]);
-                        }
-                        else if (isset($operation['longid'])) {
-                            self::$topCollector->AnnounceInformation("Fetching data from backend with long id");
-                            $tmp = explode(":", $operation['longid']);
-                            $data = self::$backend->Fetch($tmp[0], $tmp[1], $operation["cpo"]);
-                        }
-                    }
-                    catch (StatusException $stex) {
-                        // the only option to return is that we could not retrieve it
-                        $status = SYNC_ITEMOPERATIONSSTATUS_CONVERSIONFAILED;
-                    }
+                    self::$encoder->startTag(SYNC_SERVERENTRYID);
+                    self::$encoder->content($serverid);
+                    self::$encoder->endTag(); // end SYNC_SERVERENTRYID
+
+                    self::$encoder->startTag(SYNC_FOLDERTYPE);
+                    self::$encoder->content("Email");
+                    self::$encoder->endTag();
+
+                    self::$topCollector->AnnounceInformation("Fetching data from backend with item and folder id");
+
+                    $data = self::$backend->Fetch($folderid, $serverid, $collection["cpo"]);
                 }
 
-                self::$encoder->startTag(SYNC_ITEMOPERATIONS_FETCH);
+                if (isset($longid)) {
+                    self::$encoder->startTag(SYNC_SEARCH_LONGID);
+                    self::$encoder->content($longid);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
 
-                    self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
-                    self::$encoder->content($status);
-                    self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
+                    self::$encoder->startTag(SYNC_FOLDERTYPE);
+                    self::$encoder->content("Email");
+                    self::$encoder->endTag();
 
-                    if (isset($operation['folderid']) && isset($operation['serverid'])) {
-                        self::$encoder->startTag(SYNC_FOLDERID);
-                        self::$encoder->content($operation['folderid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
+                    $tmp = explode(":", $longid);
 
-                        self::$encoder->startTag(SYNC_SERVERENTRYID);
-                        self::$encoder->content($operation['serverid']);
-                        self::$encoder->endTag(); // end SYNC_SERVERENTRYID
+                    self::$topCollector->AnnounceInformation("Fetching data from backend with long id");
 
-                        self::$encoder->startTag(SYNC_FOLDERTYPE);
-                        self::$encoder->content("Email");
-                        self::$encoder->endTag();
-                    }
-
-                    if (isset($operation['longid'])) {
-                        self::$encoder->startTag(SYNC_SEARCH_LONGID);
-                        self::$encoder->content($operation['longid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
-
-                        self::$encoder->startTag(SYNC_FOLDERTYPE);
-                        self::$encoder->content("Email");
-                        self::$encoder->endTag();
-                    }
-
-                    if (isset($operation['filereference'])) {
-                        self::$encoder->startTag(SYNC_AIRSYNCBASE_FILEREFERENCE);
-                        self::$encoder->content($operation['filereference']);
-                        self::$encoder->endTag(); // end SYNC_AIRSYNCBASE_FILEREFERENCE
-                    }
-
-                    if (isset($data)) {
-                        self::$topCollector->AnnounceInformation("Streaming data");
-
-                        self::$encoder->startTag(SYNC_ITEMOPERATIONS_PROPERTIES);
-                        $data->Encode(self::$encoder);
-                        self::$encoder->endTag(); //SYNC_ITEMOPERATIONS_PROPERTIES
-                    }
-
-                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_FETCH
-            }
-            // empty folder contents operation
-            else if ($operation['operation'] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
-                try {
-                    self::$topCollector->AnnounceInformation("Emptying folder");
-
-                    // send request to backend
-                    self::$backend->EmptyFolder($operation['folderid'], $operation['deletesubfolders']);
-                }
-                catch (StatusException $stex) {
-                   $status = $stex->getCode();
+                    $data = self::$backend->Fetch($tmp[0], $tmp[1], $collection["cpo"]);
                 }
 
-                self::$encoder->startTag(SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS);
+                if (isset($filereference)) {
+                    self::$encoder->startTag(SYNC_AIRSYNCBASE_FILEREFERENCE);
+                    self::$encoder->content($filereference);
+                    self::$encoder->endTag(); // end SYNC_AIRSYNCBASE_FILEREFERENCE
 
-                    self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
-                    self::$encoder->content($status);
-                    self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
+                    self::$topCollector->AnnounceInformation("Get attachment data from backend with file reference");
 
-                    if (isset($operation['folderid'])) {
-                        self::$encoder->startTag(SYNC_FOLDERID);
-                        self::$encoder->content($operation['folderid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
-                    }
-                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS
-            }
-            // TODO implement ItemOperations Move
-            // move operation
-            else {
-                self::$topCollector->AnnounceInformation("not implemented", true);
+                    $data = self::$backend->GetAttachmentData($filereference);
+                }
 
-                // reply with "can't do"
-                self::$encoder->startTag(SYNC_ITEMOPERATIONS_MOVE);
-                    self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
-                    self::$encoder->content(SYNC_ITEMOPERATIONSSTATUS_SERVERERROR);
-                    self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
-                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_MOVE
-            }
+                //TODO put it in try catch block
 
+                if (isset($data)) {
+                    self::$topCollector->AnnounceInformation("Streaming data");
+
+                    self::$encoder->startTag(SYNC_ITEMOPERATIONS_PROPERTIES);
+                    $data->Encode(self::$encoder);
+                    self::$encoder->endTag(); //SYNC_ITEMOPERATIONS_PROPERTIES
+                }
+
+            self::$encoder->endTag();//SYNC_ITEMOPERATIONS_FETCH
         }
+        // empty folder contents operation
+        else if ($efc) {
+            try {
+                self::$topCollector->AnnounceInformation("Emptying folder");
+
+                // send request to backend
+                self::$backend->EmptyFolder($folderid, $deletesubfolders);
+            }
+            catch (StatusException $stex) {
+               $status = $stex->getCode();
+            }
+
+            self::$encoder->startTag(SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS);
+
+                self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
+                self::$encoder->content($status);
+                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
+
+                if (isset($folderid)) {
+                    self::$encoder->startTag(SYNC_FOLDERID);
+                    self::$encoder->content($folderid);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
+                }
+            self::$encoder->endTag();//SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS
+        }
+        // TODO implement ItemOperations Move
+        // move operation
+        else {
+            self::$topCollector->AnnounceInformation("not implemented", true);
+
+            self::$encoder->startTag(SYNC_ITEMOPERATIONS_MOVE);
+                self::$encoder->startTag(SYNC_ITEMOPERATIONS_STATUS);
+                self::$encoder->content($status);
+                self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
+            self::$encoder->endTag();//SYNC_ITEMOPERATIONS_MOVE
+        }
+
         self::$encoder->endTag();//SYNC_ITEMOPERATIONS_RESPONSE
         self::$encoder->endTag();//SYNC_ITEMOPERATIONS_ITEMOPERATIONS
 

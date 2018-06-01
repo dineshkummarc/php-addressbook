@@ -12,10 +12,10 @@ $resultsnumber = 0;
 if ($id) {
 
    $sql = "SELECT * FROM $base_from_where AND $table.id='$id'";
-   $result = mysql_query($sql, $db);
-   $r = mysql_fetch_array($result);
+   $result = mysqli_query($db,$sql);
+   $r = mysqli_fetch_array($result);
 
-   $resultsnumber = mysql_numrows($result);
+   $resultsnumber = mysqli_num_rows($result);
 }
 
 if( ($resultsnumber == 0 && !isset($all)) || (!$id && !isset($all))) {
@@ -178,8 +178,8 @@ else if($id)
 {
   if(! $read_only)
   {
-$result = mysql_query("SELECT * FROM $base_from_where AND $table.id=$id",$db);
-$myrow = mysql_fetch_array($result);
+$result = mysqli_query($db,"SELECT * FROM $base_from_where AND $table.id=$id");
+$myrow = mysqli_fetch_array($result);
 ?>
 
   <form enctype="multipart/form-data" 
@@ -365,10 +365,10 @@ $myrow = mysql_fetch_array($result);
             echo "<option>$group_name</option>\n";
           }
           $sql = "SELECT group_name FROM $table_groups ORDER BY lower(group_name) ASC";
-          $result_groups = mysql_query($sql);
-          $result_gropup_snumber = mysql_numrows($result_groups);
+          $result_groups = mysqli_query($db,$sql);
+          $result_gropup_snumber = mysqli_num_rows($result_groups);
           
-          while ($myrow_group = mysql_fetch_array($result_groups))
+          while ($myrow_group = mysqli_fetch_array($result_groups))
           {
             echo "<option>".$myrow_group["group_name"]."</option>\n";
           }
@@ -693,10 +693,10 @@ function proposeNames() {
           <option value="[none]">[<?php echo msg("NONE"); ?>]</option>
           <?php
           $sql="SELECT group_name FROM $groups_from_where ORDER BY lower(group_name) ASC";
-          $result_groups = mysql_query($sql);
-          $result_gropup_snumber = mysql_numrows($result_groups);
+          $result_groups = mysqli_query($db,$sql);
+          $result_gropup_snumber = mysqli_num_rows($result_groups);
           
-          while ($myrow_group = mysql_fetch_array($result_groups))
+          while ($myrow_group = mysqli_fetch_array($result_groups))
           {
             echo "<option>".$myrow_group["group_name"]."</option>\n";
           }

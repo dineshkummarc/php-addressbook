@@ -8,11 +8,11 @@ include"master_inc.php";
 // Connect to server and select databse.
 $sql="SELECT * FROM addr_users WHERE email='$email' AND md5_pass ='$pw_url'";
 
-$result=mysql_query($sql);
+$result=mysqli_query($db,$sql);
 
-// Mysql_num_row is counting table rows
+// mysqli_num_row is counting table rows
 
-$count=mysql_num_rows($result);
+$count=mysqli_num_rows($result);
 
 // If result matches $myusername and $mypassword, table row must be 1 row
 
@@ -34,7 +34,7 @@ $encrypted_temp_pw = md5($temp_pw_raw);
 $query = "UPDATE `users` SET `password`='$encrypted_temp_pw',`password_hint`='' WHERE `email`='$email'"; 
 
 // save the info to the database
-$results = mysql_query( $query );
+$results = mysqli_query( $query );
 
 // print out the results
 if( $results )
@@ -43,7 +43,7 @@ if( $results )
 }
 else
 {
-die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font><br><br> " . mysql_error() );
+die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving information to the database:</font><br><br> " . mysqli_error() );
 }
 
 
@@ -60,14 +60,14 @@ die( "<font size='2' face='Verdana, Arial, Helvetica, sans-serif'>Trouble saving
 		  
 		  $query = "SELECT * FROM users WHERE email='$email' AND password='$encrypted_temp_pw'";
 
-$numresults=mysql_query($query);
-$numrows=mysql_num_rows($numresults); 
+$numresults=mysqli_query($query);
+$numrows=mysqli_num_rows($numresults); 
 
 // get results
-$result = mysql_query($query) or die("Couldn't execute query");
+$result = mysqli_query($query) or die("Couldn't execute query");
 
 // now you can display the results returned
-while ($row= mysql_fetch_array($result)) {
+while ($row= mysqli_fetch_array($result)) {
 
 $username= $row["username"];
 $email= $row["email"];

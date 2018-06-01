@@ -5,12 +5,12 @@ include"login_config.php";
 //Connection String Variables_________________________________________________
 
    // connect to the server
-   mysql_connect( $db_host, $db_username, $db_password )
-      or die( "Error! Could not connect to database: " . mysql_error() );
+   mysqli_connect( $db_host, $db_username, $db_password )
+      or die( "Error! Could not connect to database: " . mysqli_error() );
    
    // select the database
-   mysql_select_db( $db )
-      or die( "Error! Could not select the database: " . mysql_error() );
+   mysqli_select_db( $db )
+      or die( "Error! Could not select the database: " . mysqli_error() );
 
 //IBM suggested scrub for URL request
 $urlun = strip_tags(substr($_REQUEST['username'],0,32));
@@ -23,11 +23,11 @@ $cleanpw = md5($urlpw);
 //$sql="SELECT * FROM agents WHERE username='$urlun' and password='$urlpw'";
 $sql="SELECT * FROM users WHERE username='$urlun' and password='$cleanpw'";
 
-$result=mysql_query($sql);
+$result=mysqli_query($db,$sql);
 
-// Mysql_num_row is counting table rows
+// mysqli_num_row is counting table rows
 
-$count=mysql_num_rows($result);
+$count=mysqli_num_rows($result);
 
 // If result matches $myusername and $mypassword, table row must be 1 row
 
