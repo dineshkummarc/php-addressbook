@@ -1,7 +1,7 @@
 Order Deny,Allow
 Deny from all
 
-<Files ~ "^$|^.*\.(php|jpg|csv|css|gif|png)$">
+<Files ~ "^$|^.*\.(php|jpg|csv|css|gif|png|zip)$">
     Order Allow,Deny
     Allow from all
 </Files>
