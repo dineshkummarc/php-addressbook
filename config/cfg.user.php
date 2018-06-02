@@ -44,10 +44,10 @@
   //
   // == Look & Feel of the domains
   //
-  $skin_color = "red"; // global skin color, e.g. on login
+  $skin_color = "blue"; // global skin color, e.g. on login
 
   // blue, brown, green, grey, pink, purple, red, turquoise, yellow
-  $domain[0]['skin'] = "red";
+  $domain[0]['skin'] = "blue";
   $domain[1]['skin'] = "pink";
   $domain[2]['skin'] = "yellow";
 
