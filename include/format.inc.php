@@ -54,7 +54,7 @@ switch($skin_color) {
 	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 
 
-	<link rel="icon" type="image/png" href="<?php echo $url_images; ?>icons/font.png" />
+	<link rel="icon" type="image/png" href="<?php echo $url_images; ?>icon/font.png" />
 	<?php if(is_right_to_left($lang)) { ?>
 	<style type="text/css">
 		<!--

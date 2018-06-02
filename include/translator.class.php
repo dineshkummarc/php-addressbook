@@ -6,7 +6,7 @@
 
 //
 // Find your missing flag here:
-// * http://www.famfamfam.com/lab/icons/flags
+// * http://www.famfamfam.com/lab/icon/flags
 //
 abstract class Translator {
 	

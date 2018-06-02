@@ -30,10 +30,10 @@
 		<form method="post" name="sso_form" action="<?php echo urldecode($_GET['from']); ?>">
   	         <input name="user" type="hidden"/>
 				<label><?php echo ucfmsg("SIGN_IN_WITH") ?>:</label>
-  	         <a href="javascript:sso_form.user.value='Facebook';sso_form.submit();"><img src="icons/facebook.png"></a>
-  	         <a href="javascript:sso_form.user.value='Google';sso_form.submit();"><img src="icons/google.png"></a>
-  	         <a href="javascript:sso_form.user.value='Yahoo';sso_form.submit();"><img src="icons/yahoo.png"></a>
-  	         <a href="javascript:sso_form.user.value='Live';sso_form.submit();"><img src="icons/microsoft.png"></a>
+  	         <a href="javascript:sso_form.user.value='Facebook';sso_form.submit();"><img src="icon/facebook.png"></a>
+  	         <a href="javascript:sso_form.user.value='Google';sso_form.submit();"><img src="icon/google.png"></a>
+  	         <a href="javascript:sso_form.user.value='Yahoo';sso_form.submit();"><img src="icon/yahoo.png"></a>
+  	         <a href="javascript:sso_form.user.value='Live';sso_form.submit();"><img src="icon/microsoft.png"></a>
 		</form>
 
 <?php include ("include/footer.inc.php"); ?>
