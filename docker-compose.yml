@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+  phpaddressbook:
+    container_name: addressbook_www
+    image: php:7.2-apache-stretch
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./data/www:/var/www/html/
+    command: >
+      sh -c "docker-php-ext-install mysqli
+      && apt-get update
+      && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev
+      && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+      && docker-php-ext-install -j$$(nproc) gd zip
+      && apache2-foreground
+      "
+  db:
+    container_name: addressbook_db
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: addressbook
+      MYSQL_USER: addressbook
+      MYSQL_PASSWORD: addressbook
+      MYSQL_ROOT_PASSWORD: addressbook
+    volumes:
+      - ./data/mysql/:/var/lib/mysql 
