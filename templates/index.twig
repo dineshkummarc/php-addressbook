@@ -1,0 +1,169 @@
+{% extends "base.twig" %} 
+
+{% from "index_cols.twig" import addCol %}
+{% from "navigation.twig" import pagination %}
+
+{% block content %}
+{% if group_header %}{{group_header}}{% endif %}
+
+{# searchform with or without ajax #}
+<div id="search-az">
+  {% if not use_ajax %}
+    <form accept-charset="utf-8" method="get" name="searchform">
+      <input type="text" value="{{searchstring}}" name="searchstring" title="{% trans "SEARCH_FOR_ANY_TEXT" %}" size="45" tabindex="0"/>
+      <input name="submitsearch" type="submit" value="{% trans "SEARCH" %}" />    
+    </form>
+    <div id='a-z'>
+      {% for letter in 'a'..'z' %}
+        <a href='index.php?alphabet={{ letter }}'>{{ letter|upper }}</a> | 
+      {% endfor %}
+      <a href='index.php'>{% trans "ALL" %}</a>
+    </div>
+  {% else %}
+    <form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false">
+      <input type="text" value="{{searchstring}}" name="searchstring" title="{% trans "SEARCH_FOR_ANY_TEXT" %}" size="45" tabindex="0" 
+      onkeyup="filterResults(this)"/>
+    </form>
+  {% endif %}
+  <script type="text/javascript">document.searchform.searchstring.focus();</script>
+</div>
+<br />
+
+<hr />
+
+{# group selector #}
+<label style='width:24em;'>
+  <strong>{% trans "NUMBER_OF_RESULTS" %}: <span id='search_count'>{{resultsnumber}}</span></strong>
+</label>
+
+{% if table_groups and not is_fix_group %}
+  <form id="right" method="get">
+    <select name="group" onchange="this.parentNode.submit()">
+      <option value="">[{% trans "ALL" %}]</option>
+      <option value="[none]" {% if group_name == "[none]" %}selected{% endif %}>[{% trans "NONE" %}]</option>
+      {% for group in group_names %}
+	  <option value="[{{group}}]"
+	    {% if group_name == ("[" ~ group ~ "]") %}selected{% endif %}>
+	    [{{group}}]
+	  </option>
+      {% endfor %}
+    </select>
+  </form>
+{% endif %}
+<br />
+<br class="clear" />
+
+{# output of table #}
+<form accept-charset="utf-8" name="MainForm" method="post" action="group.php">
+  <input type="hidden" name="group" value="{{group}}" />
+  
+  <div class="left">
+    &nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em>
+  </div>
+  
+  {{ pagination(page, last, limit, prev, next) }}
+  
+  <div style="clear:both"><br/></div>
+  
+  <table id="maintable" class="sortcompletecallback-applyZebra">
+    {# table header #}
+    <tr>
+      {% if not is_mobile %}
+        {% set disp_cols_filter1 = ["home", "work", "mobile", "select", "edit", "vcard", "map", "homepage", "details"] %}
+        {% set disp_cols_filter2 = ["home", "work", "mobile"] %}
+        {% for col in disp_cols %}
+          {% if col not in disp_cols_filter1 %}
+            {% set col = col|upper %}
+            <th class='sortable'>{% trans col %}</th>
+          {% elseif col in disp_cols_filter2 %}
+            {% set col = col|upper %}
+            <th>{% trans %}"PHONE_"{{col}}{% endtrans %}</th>
+          {% else %}
+            <th></th>
+            {% if col == "edit" and not read_only %}{# row for edit #}
+              <th></th>
+            {% endif %}
+            {% if col == "details" %}
+              <th></th>
+              <th></th>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </tr>
+    
+    {# table content (addresses) #}
+    {% for address in addresses %}
+      <tr class='{{ loop.index0 % 2 ? 'odd' }}' name='entry'>
+      {% if is_mobile %}
+        <td>{{ addCol("lastname", address) }}</td>
+        <td>{{ addCol("firstname", address) }}</td>
+        <td>{{ addCol("edit", address) }}</td>
+      {% else %}
+        {% for col in disp_cols %}
+	  <td>{{ addCol(col, address) }}</td>
+        {% endfor %}
+      {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+  
+  <div class="left">
+    &nbsp;<input type='checkbox' id='MassCB' onclick="MassSelection()" /> <em><strong>{% trans "SELECT_ALL" %}</strong></em>
+  </div>
+
+  {{ pagination(page, last, limit, prev, next) }}
+  
+  <div style="clear:both"><br/></div>
+  
+  {# actions (left: send mail, add to group, delete) #}
+  <div class='left'>
+    {% if use_doodle %}
+      <input type='button' value="{% trans "DOODLE" %}"   onclick="Doodle()" />
+    {% endif %}
+    <input type='button' value="{% trans "SEND_EMAIL" %}" onclick="MailSelection()" />
+    
+    {% if not read_only %}
+      {% if table_groups and not is_fix_group %}
+        {# Remove from group #}
+        {% if group_name and not (group_name == "[none]") %}
+          <br/><input type='submit' name='remove' value='{% trans "REMOVE_FROM" %} {{group_name}}'/>
+        {% endif %}
+        
+        {# Add to a group #}
+        <br/><input type='submit' name='add' value='{% trans "ADD_TO" %}'/>-
+        <select name='to_group'>
+	{% for group in group_names %}
+	    <option 
+	      {% if group_name %}{% if group == group_name %}selected{% endif %}{% endif %}>
+	      [{{group}}]
+	    </option>
+	{% endfor %}
+	</select>
+      {% endif %}
+      <br/><input type='button' value="{% trans "DELETE" %}" onclick="DeleteSel()" />
+    {% endif %}
+  </div>
+</form>
+
+{# print actions #}
+<div class="right" style="clear:right">
+  <form>
+    <input type="button" value="{% trans 'PRINT_ALL' %}" onclick="window.location.href='view.php?all&amp;print'">
+    <br/><input type="button" value="{% trans 'PRINT_PHONES' %}" onclick="window.location.href='view.php?all&amp;print&amp;phones'">
+  </form>
+</div>
+
+{# TODO:
+<!-- show group footer -->
+{% if group_name and $group_myrow['group_footer'] != "") {
+  echo "<hr />".$group_myrow['group_footer']."<hr />";
+} ?> #}
+
+{% endblock %}
+
+{% if use_ajax %}
+  {% block js_commands_bottom %}
+    filterResults(document.getElementsByName("searchstring")[0]);
+  {% endblock %}
+{% endif %}

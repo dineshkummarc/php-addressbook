@@ -1,0 +1,107 @@
+{% extends "base.twig" %} 
+
+{% block title %}
+Groups | Address Book
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'GROUPS' %}</h1>
+
+{% if action == "submit" %}
+  <br /><div class='msgbox'>A new group has been entered into the address book.<br /><i>return to the <a href='group.php'>group page</a></i></div>
+{% elseif action == "new" %}
+  <form accept-charset="utf-8" method="post" action="group.php">
+    <label>Group name:</label>
+    <input type="text" name="group_name" size="35" /><br />
+
+    <label>{% trans 'GROUP_PARENT' %}</label>
+    <select name="group_parent_id">
+      <option value="" selected>[none]</option>
+      {% for group in group_names %}
+        <option value="{{group}}">{{group}}</option>
+      {% endfor %}
+    </select>
+    <br /><br />
+
+    <label>Group header (Logo):</label>
+    <textarea name="group_header" rows="10" cols="40"></textarea><br />
+
+    <label>Group footer (Comment):</label>
+    <textarea name="group_footer" rows="10" cols="40"></textarea><br /><br />
+    
+    <input type="submit" name="submit" value="Enter information" />
+  </form>
+{% elseif action == "delete" %}
+  <div class='msgbox'>Group has been removed.<br /><i>return to the <a href='group.php'>group page</a></i></div>
+{% elseif action == "add" %}
+  {% if selected %}
+    <div class='msgbox'>Users added.<br /><i>Go to <a href='./?group={{group_name}}'>group page "{{group_name}}"</a>.</i></div>
+  {% else %}
+    <div class='msgbox'><i>No users selected.<br />Please use the checkbox to select a user.</i></div>
+  {% endif %}
+{% elseif action == "remove" %}  
+  <div class='msgbox'>Users removed. <br /><i>return to <a href='./?group={{group_name}}'>group page "{{group_name}}"</a>.</i></div>
+{% elseif action == "update" %}
+  {% if success %}
+    <br /><div class='msgbox'>Group record has been updated.<br /><i>return to the <a href='group.php'>group page</a></i></div>
+  {% else %}
+    <br /><div class='msgbox'>Invalid ID.<br /><i>return to the <a href='group.php'>group page</a></i></div>
+  {% endif %}
+{% elseif action == "id" %}
+  <form accept-charset="utf-8" method="post" action="group.php">
+    <input type="hidden" name="id" value="{{data['group_id']}}" />
+
+    <label>{% trans 'GROUP_NAME' %}</label>
+    <input type="text" name="group_name" size="35" value="{{data['group_name']}}" />
+    <br /><br />
+
+    <label>{% trans 'GROUP_PARENT' %}</label>
+    <select name="group_parent_id">
+      {% set parent_found = false %}
+      {% for key, group in group_names %}
+        <option value="{{key}}" 
+        {% if key == data['group_parent_id'] %}{% set parent_found = true %}selected{% endif %}>
+        {{group}}</option>
+      {% endfor %}
+      <option value="none" {% if not parent_found %}selected{% endif %}>[none]</option>
+    </select>
+    </select>
+    <br /><br class="clear" />
+
+    <label>{% trans 'GROUP_HEADER' %}:</label>
+    <textarea name="group_header" rows="10" cols="40">{{data["group_header"]}}</textarea><br />
+
+    <label>{% trans 'GROUP_FOOTER' %}:</label>
+    <textarea name="group_footer" rows="10" cols="40">{{data["group_footer"]}}</textarea><br /><br />
+    
+    <input type="submit" name="update" value="{% trans 'UPDATE' %}" />
+  </form>
+  <br />
+{% else %}
+  <form method="post" action="group.php">
+    <input type="submit" name="new" value="{% trans 'NEW_GROUP' %}" />
+    <input type="submit" name="delete" value="{% trans 'DELETE_GROUPS' %}" />
+    <input type="submit" name="edit" value="{% trans 'EDIT_GROUP' %}" />
+
+    <hr />
+
+    {% for row in data %}
+      <input type='checkbox' name='selected[]' value='{{row['group_id']}}' title='Select ({{row['group_name']}})'/>
+      {% if row['parent_name'] %}
+        {{row['group_name']}} <i>({{row['parent_name']}})</i><br />
+      {% else %}
+        {{row['group_name']}}<br />
+      {% endif %}
+    {% endfor %}
+    <br />
+    
+    <input type="submit" name="new" value="{% trans 'NEW_GROUP' %}" />
+    <input type="submit" name="delete" value="{% trans 'DELETE_GROUPS' %}" />
+    <input type="submit" name="edit" value="{% trans 'EDIT_GROUP' %}" />
+  </form>
+{% endif %}
+
+{% if editing_disabled %}
+  <br /><div class='msgbox'>Editing is disabled.<br /><i>return to the <a href='group.php'>group page</a></i></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+BEGIN:VCALENDAR
+PRODID:-//PHP Address Book//php-addressbook {{version}}//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PHP Adressbook Birthdays
+X-WR-TIMEZONE:UTC
+X-WR-CALDESC:
+
+{% for date in dates %}
+BEGIN:VEVENT
+UID:{{date["date"]|date('Y')}}{{date["id"]}}php-addressbook.sourceforge.net
+DTSTART;VALUE=DATE:{{date["date"]|date('Ymd')}}
+DTEND;VALUE=DATE:{{date["date"]+(24*3600)|date('Ymd')}}
+DTSTAMP:{{"now"|date("Ymd\THi00\Z")}}
+CREATED:{{"now"|date("Ymd\THi00\Z")}}
+DESCRIPTION:
+LAST-MODIFIED:{{"now"|date("Ymd\THi00\Z")}}
+LOCATION:
+STATUS:CONFIRMED
+SUMMARY:{% trans "BIRTHDAY" %} {{ date["firstname"]{% if date["middlename"] %}{{date["middlename"]}} {{date["lastname"]}} | trim }} {{date["age"]}}
+DESCRIPTION:Mail:
+- {{date["email"]}}
+- {{date["email2"]}}
+- {{date["email3"]}}
+                         
+{% trans "TELEPHONE" %}
+- {{date["home"]}}
+- {{date["mobile"]}}
+- {{date["$work"]}}
+
+END:VEVENT
+
+BEGIN:VEVENT
+UID:{{date["date2"]|date('Y')}}{{date["id"]}}php-addressbook.sourceforge.net
+DTSTART;VALUE=DATE:{{date["date2"]|date('Ymd')}}
+DTEND;VALUE=DATE:{{date["date2"]+(24*3600)|date('Ymd')}}
+DTSTAMP:{{"now"|date("Ymd\THi00\Z")}}
+CREATED:{{"now"|date("Ymd\THi00\Z")}}
+DESCRIPTION:
+LAST-MODIFIED:{{"now"|date("Ymd\THi00\Z")}}
+LOCATION:
+STATUS:CONFIRMED
+SUMMARY:{% trans "BIRTHDAY" %} {{ date["firstname"]{% if date["middlename"] %}{{date["middlename"]}} {{date["lastname"]}} | trim }} {{date["age2"]}}
+DESCRIPTION:Mail:
+- {{date["email"]}}
+- {{date["email2"]}}
+- {{date["email3"]}}
+                         
+{% trans "TELEPHONE" %}
+- {{date["home"]}}
+- {{date["mobile"]}}
+- {{date["$work"]}}
+
+END:VEVENT
+{% endfor %}
+
+END:VCALENDAR
