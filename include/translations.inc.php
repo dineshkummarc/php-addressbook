@@ -6,7 +6,7 @@
 
 //
 // Find your missing flag here:
-// * http://www.famfamfam.com/lab/icon/flags
+// * http://www.famfamfam.com/lab/icons/flags
 //
 
 require_once("prefs.inc.php");

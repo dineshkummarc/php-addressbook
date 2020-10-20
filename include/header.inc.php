@@ -6,7 +6,6 @@
 		<div id="container">
 			<div id="top">
 
-<!--
 <?php if(isset($userlist) /* && !(isset($iplist) && hasRoleFromIP($iplist))*/) { ?>
 <form name="logout" method="post" class="header">
 <input type="hidden" name="logout" value="yes" />
@@ -16,7 +15,6 @@
 <?php } else { ?>
 <?php echo "<b>(".$_SERVER['REMOTE_ADDR'].")</b>"; ?>
 <?php } ?>
--->
 			</div>
 			<div id="header">
 				<h1><a href=".">Address Book</a></h1>
