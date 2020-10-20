@@ -3,7 +3,7 @@
   include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.db.php";
   include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.user.php";   
 
- // include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.sso.php";
+  include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.sso.php";
   include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.mail.php";   
   include dirname(__FILE__).DIRECTORY_SEPARATOR."cfg.guess.php";   
   
@@ -28,20 +28,20 @@
            // , "work"
            // , "fax"
            , "edit"
-           //, "details"
+           , "details"
            );
 
   // Enable quick adding of unstructured addresses
-  $quickadd = false;
+  $quickadd = true;
 
   // Don't display groups
-  $nogroups = true;
+  $nogroups = false;
 
   // Disable all "edit/create" actions
   $read_only  = false;
 
   // Enable group administration pages
-  $public_group_edit = false;
+  $public_group_edit = true;
 
   // Disable the AJAX-Mode with "false"
   $use_ajax = true;
