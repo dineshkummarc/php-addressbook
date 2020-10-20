@@ -24,9 +24,9 @@ echo "<div id='a-z'><a href='$link=a'>A</a> | <a href='$link=b'>B</a> | <a href=
 <tr>
 	<td>
 		  <i><b>PHP-Addressbook</b> + iPhone-Contacts-Synchronization</i><br>
-		<img src="icon/cross.png">
+		<img src="icons/cross.png">
 		  <a href="http://swiss-addressbook.com">www.swiss-addressbook.com</a>
-		<img src="icon/cross.png"><br>
+		<img src="icons/cross.png"><br>
 		Advertisment: 2 months for free, then just 2$ per month!<br>
 		</td></tr>
 </table>
@@ -188,19 +188,19 @@ function addRow($row) {
   		  echo "<td>".str_replace("\n", "<br>", $address)."</td>";
   		  break;
       case "edit":
-        echo "<td class='center'><a href='view${page_ext_qry}id=$id'><img src='${url_images}icon/status_online.png' title='".ucfmsg('DETAILS')."' alt='".ucfmsg('DETAILS')."' /></a></td>";
+        echo "<td class='center'><a href='view${page_ext_qry}id=$id'><img src='${url_images}icons/status_online.png' title='".ucfmsg('DETAILS')."' alt='".ucfmsg('DETAILS')."' /></a></td>";
         if(! $read_only) {
-          echo "<td class='center'><a href='edit${page_ext_qry}id=$id'><img src='${url_images}icon/pencil.png' title='".ucfmsg('EDIT')."' alt='".ucfmsg('EDIT')."'/></a></td>";
+          echo "<td class='center'><a href='edit${page_ext_qry}id=$id'><img src='${url_images}icons/pencil.png' title='".ucfmsg('EDIT')."' alt='".ucfmsg('EDIT')."'/></a></td>";
         }
   		  break;
       case "vcard":
-        echo "<td class='center'><a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icon/vcard.png' title='vCard' alt='vCard'/></a></td>";        
+        echo "<td class='center'><a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icons/vcard.png' title='vCard' alt='vCard'/></a></td>";        
   	    break;
       case "map":      
         if($map_guess) {
           if($myrow["address"] != "")
           echo "<td class='center'><a href='http://maps.google.com/maps?q=".urlencode(trim(str_replace("\r\n", ", ", trim($myrow["address"]))))."&amp;t=h' target='_blank'>
-                                <img src='${url_images}icon/car.png' title='Google Maps' alt='vCard'/></a></td>";
+                                <img src='${url_images}icons/car.png' title='Google Maps' alt='vCard'/></a></td>";
           else echo "<td/>";
         }
         break;
@@ -209,19 +209,19 @@ function addRow($row) {
         	  $homepage = (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0
         	              ? $homepage
         	              : "http://".$homepage);
-            echo "<td class='center'><a href='$homepage'><img src='${url_images}icon/house.png' title='$homepage' alt='$homepage'/></a></td>";
+            echo "<td class='center'><a href='$homepage'><img src='${url_images}icons/house.png' title='$homepage' alt='$homepage'/></a></td>";
         } elseif($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "") {
-            echo "<td class='center'><a href='http://$homepage'><img src='${url_images}icon/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a></td>";
+            echo "<td class='center'><a href='http://$homepage'><img src='${url_images}icons/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a></td>";
         } else {
         	echo "<td/>";
         }		    
   		  break;
       case "details":
-        echo "<td class='center'><a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icon/vcard.png' title='vCard' alt='vCard'/></a></td>";        
+        echo "<td class='center'><a href='vcard${page_ext_qry}id=$id'><img src='${url_images}icons/vcard.png' title='vCard' alt='vCard'/></a></td>";        
         if($map_guess) {
           if($myrow["address"] != "")
           echo "<td class='center'><a href='http://maps.google.com/maps?q=".urlencode(trim(str_replace("\r\n", ", ", trim($myrow["address"]))))."&amp;t=h' target='_blank'>
-                                <img src='${url_images}icon/car.png' title='Google Maps' alt='vCard'/></a></td>";
+                                <img src='${url_images}icons/car.png' title='Google Maps' alt='vCard'/></a></td>";
           else echo "<td/>";
         }
         
@@ -229,9 +229,9 @@ function addRow($row) {
         	  $homepage = (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0
         	              ? $homepage
         	              : "http://".$homepage);
-            echo "<td class='center'><a href='$homepage'><img src='${url_images}icon/house.png' title='$homepage' alt='$homepage'/></a></td>";
+            echo "<td class='center'><a href='$homepage'><img src='${url_images}icons/house.png' title='$homepage' alt='$homepage'/></a></td>";
         } elseif($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "") {
-            echo "<td class='center'><a href='http://$homepage'><img src='${url_images}icon/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a></td>";
+            echo "<td class='center'><a href='http://$homepage'><img src='${url_images}icons/house.png' title='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)' alt='".ucfmsg("GUESSED_HOMEPAGE")." ($homepage)'/></a></td>";
         } else {
         	echo "<td/>";
         }		    
